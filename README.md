@@ -29,7 +29,7 @@ Step 3 :
 
     3.5 : Navigate to the third option "Bot" and under the "Build a Bot" section click the "Add Bot" and finalise your selection. (Note, this is irreversible for that application.)
 
-    3.6 : Now, under the label "TOKEN", click "Copy" to copy the token and save it somewhere safe as it is the only valid key to control your bot using your code.
+    3.6 : Now, under the label "TOKEN", click "Copy" to copy the token and save it in "token.txt" in the directory "/src" of the code as it is the only valid key to control your bot using your code.
 
     3.7 : Check the following permissions : 
         i. PUBLIC BOT
@@ -41,10 +41,6 @@ Step 3 :
           A new option "BOT PERMISSIONS" pops out where you can choose which permissions are checked when the bot is invited to a server.
 
           Copy the link generated under "SCOPES" and paste it in address box of browser.
-
-    3.9 : Once the bot is in your server, copy the previously fetched token and paste  it in src/main.py inside the parentheses of "client.run('')" as follows : 
-    
-        client.run('<token>')
 
 ---------------------------------------------------------------------------------
 
