@@ -1,3 +1,53 @@
 # S4DS-Bot
 
-S4DS bot which serves for arXiv and Kaggle functionality.
+S4DS discord bot which serves for arXiv and Kaggle functionality.
+
+This is a bot programmed entirely in python3 (Version 3.7+), primarily using discord.py (V 1.x(+) ), also known as the "Rewrite" version of discord.py.
+
+Resources for discord.py : 
+
+github - https://github.com/Rapptz/discord.py
+Documentation - https://discordpy.readthedocs.io/en/stable/
+
+-----------------------------------------------------------------------------
+
+Setting up the bot : 
+
+Step 1 : Login to discord on desktop.
+
+Step 2 : Login to discord developer portal : 
+            https://discord.com/developers/docs/intro
+
+Step 3 : 
+    3.1 : From the top menu (Under "DEVELOPER PORTAL") click on "Applications".
+
+    3.2 : On the top right corner, click on "New Application". Assign a name to your application and finalize by clicking the "Create" button.
+
+    3.3 : Now you will be directed to the application configuration page. Make sure your bot application is selected.
+
+    3.4 : You can edit basic information in the default "General Information" tab.
+
+    3.5 : Navigate to the third option "Bot" and under the "Build a Bot" section click the "Add Bot" and finalise your selection. (Note, this is irreversible for that application.)
+
+    3.6 : Now, under the label "TOKEN", click "Copy" to copy the token and save it somewhere safe as it is the only valid key to control your bot using your code.
+
+    3.7 : Check the following permissions : 
+        i. PUBLIC BOT
+        ii. REQUIRES OAUTH2 CODE GRANT
+        iii. PRESENCE INTENT
+        iv. SERVER MEMBERS INTENT
+
+    3.8 : Now, go to the second option "OAuth2" and under label "SCOPES" select "bot".
+          A new option "BOT PERMISSIONS" pops out where you can choose which permissions are checked when the bot is invited to a server.
+
+          Copy the link generated under "SCOPES" and paste it in address box of browser.
+
+    3.9 : Once the bot is in your server, copy the previously fetched token and paste  it in src/main.py inside the parentheses of "client.run('')" as follows : 
+    
+        client.run('<token>')
+
+---------------------------------------------------------------------------------
+
+So, following the above steps one can easily deploy the bot on a local machine.
+
+Documentation for advanced and specific functions will be updated shortly.
