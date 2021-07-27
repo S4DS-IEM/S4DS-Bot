@@ -7,15 +7,25 @@ intents.members=True
 
 client=commands.Bot(command_prefix='-',intents=intents)
 
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("Invalid Command!")
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send("Must have ```administrator``` permissions to use this command!")
+
 @client.command()
+@commands.has_permissions(administrator=True)
 async def load(ctx, extension):
     client.load_extension(f'cogs.{extension}')
 
 @client.command()
+@commands.has_permissions(administrator=True)
 async def unload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
 
 @client.command()
+@commands.has_permissions(administrator=True)
 async def reload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
     client.load_extension(f'cogs.{extension}')
