@@ -7,11 +7,13 @@ intents.members=True
 
 client=commands.Bot(command_prefix='-',intents=intents)
 
+missing_perms = ['administrator']
+
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Invalid Command!")
-    elif isinstance(error, commands.MissingPermissions(administrator=True)):
+    elif isinstance(error, commands.MissingPermissions(missing_perms)):
         await ctx.send("Must have `administrator` permissions to use this command!")
 
 @client.command()
