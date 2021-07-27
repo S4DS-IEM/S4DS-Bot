@@ -44,6 +44,14 @@ Step 3 :
 
 ---------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------
+Minor Fix 1 : Fixed Permissions for managing cogs
+
+Now the load, unload and reload commands require administrator permissions for a user in order to use them, and flashes error message if they don't have necessary permissions.
+This is implemented by using checks and handling errors.
+
+---------------------------------------------------------------------------------
+
 So, following the above steps one can easily deploy the bot on a local machine.
 
 Documentation for advanced and specific functions will be updated shortly.
