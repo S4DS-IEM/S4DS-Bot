@@ -12,7 +12,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Invalid Command!")
     elif isinstance(error, commands.MissingPermissions(administrator=True)):
-        await ctx.send("Must have ```administrator``` permissions to use this command!")
+        await ctx.send("Must have `administrator` permissions to use this command!")
 
 @client.command()
 @commands.has_permissions(administrator=True)
