@@ -37,7 +37,7 @@ class basic(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send('Please specify an amount of messages to be deleted!')
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send('Missing ```Manage Messages``` Permissions!')
+            await ctx.send('Missing `Manage Messages` Permissions!')
 
 
 def setup(client):
