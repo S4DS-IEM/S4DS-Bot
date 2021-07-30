@@ -52,6 +52,23 @@ This is implemented by using checks and handling errors.
 
 ---------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------
+Major Patch 1: Added arXiv functionality
+
+arXiv search results powered by arXiv.org
+
+$arxivshow <keyword> - Displays the top result using the searched keyword (including authors, title, summary, link and download link).
+
+$arxivshowlud <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of last updated date.
+
+$arxivshowr <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of relevance.
+
+$arxivshowsd <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of submitted date. 
+
+$arxivshowsumm <keyword> - Displays top 5 papers using the searched keyword (including authors, title, summary, link and download link).
+
+---------------------------------------------------------------------------------
+
 So, following the above steps one can easily deploy the bot on a local machine.
 
 Documentation for advanced and specific functions will be updated shortly.
