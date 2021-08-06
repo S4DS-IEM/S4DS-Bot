@@ -57,22 +57,22 @@ Major Patch 1: Added arXiv functionality
 
 arXiv search results powered by arXiv.org
 
-<prefix> arxivshow <keyword> - Displays the top result using the searched keyword (including authors, title, summary, link and download link).
+`<prefix> arxivshow <keyword>` - Displays the top result using the searched keyword (including authors, title, summary, link and download link).
 
-<prefix> arxivshowlud <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of last updated date.
+`<prefix> arxivshowlud <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of last updated date.
 
-<prefix> arxivshowr <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of relevance.
+`<prefix> arxivshowr <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of relevance.
 
-<prefix> arxivshowsd <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of submitted date. 
+`<prefix> arxivshowsd <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of submitted date. 
 
-<prefix> arxivshowsumm <keyword> - Displays top 5 papers using the searched keyword (including authors, title, summary, link and download link).
+`<prefix> arxivshowsumm <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, summary, link and download link).
 
 ---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
 Major Patch 2: Added Kaggle functionality
 
-<prefix> list - Displays top 20 competitions from Kaggle Competition List
+`<prefix> list` - Displays top 20 competitions from Kaggle Competition List
 
 ---------------------------------------------------------------------------------
 
