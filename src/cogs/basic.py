@@ -3,7 +3,7 @@ from discord.enums import Status
 from discord.ext import commands, tasks
 from itertools import cycle
 
-status = cycle(['arXiv','Kaggle'])
+status = cycle(['arXiv','Kaggle','redditAPI'])
 
 class basic(commands.Cog):
     def __init__(self, client):
@@ -25,7 +25,11 @@ class basic(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        await ctx.send(f'Pong! In {round(self.client.latency*1000)} ms.')
+        embed=discord.Embed(title="Ping",
+        description=f'Pong! In {round(self.client.latency*1000)} ms.',
+        color=discord.Color.dark_gold())
+        embed.set_footer(text=f'Information requested by : {ctx.author.id}')
+        await ctx.send(embed)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
