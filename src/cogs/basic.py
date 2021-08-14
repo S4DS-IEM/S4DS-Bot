@@ -2,6 +2,7 @@ import discord
 from discord.enums import Status 
 from discord.ext import commands, tasks
 from itertools import cycle
+import asyncio
 
 status = cycle(['arXiv','Kaggle','redditAPI'])
 
@@ -17,32 +18,42 @@ class basic(commands.Cog):
     @tasks.loop(seconds=15)
     async def change_status(self):
         await self.client.change_presence(activity=discord.Game(next(status)))
-        
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandNotFound):
-            await ctx.send('Invalid Command!')
 
     @commands.command()
     async def ping(self, ctx):
         embed=discord.Embed(title="Ping",
         description=f'Pong! In {round(self.client.latency*1000)} ms.',
-        color=discord.Color.dark_gold())
-        embed.set_footer(text=f'Information requested by : {ctx.author.id}')
-        await ctx.send(embed)
+        color=discord.Color.green())
+        embed.set_footer(text=f'Information requested by : {ctx.author.display_name}')
+        await ctx.send(embed=embed)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     async def clear(self, ctx, amount : int):
         await ctx.channel.purge(limit=amount)
+        embed=discord.Embed(title="Purged Messages!",description=f'{amount} messages have been cleared.',
+        color=discord.Color.teal())
+        await ctx.send(embed=embed)
+        await asyncio.sleep(2)
+        await ctx.channel.purge(limit=1)
 
     @clear.error
     async def on_command_err(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('Please specify an amount of messages to be deleted!')
+            embed_title="Missing Required Argument!"
+            embed_desc="Please specify an amount of messages to be deleted!"
+            embed_color=discord.Color.orange()
+            #await ctx.send('Please specify an amount of messages to be deleted!')
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send('Missing `Manage Messages` Permissions!')
-
+            embed_title="Missing Permissions!"
+            embed_desc="Missing `Manage Messages` Permissions!"
+            embed_color=discord.Color.red()
+            #await ctx.send('Missing `Manage Messages` Permissions!')
+        else:
+            return
+        embed=discord.Embed(title=embed_title,description=embed_desc,color=embed_color)
+        embed.set_footer(text=f'Command error encountered by : {ctx.author.display_name}')
+        await ctx.send(embed=embed)
 
 def setup(client):
     client.add_cog(basic(client))
