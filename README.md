@@ -57,15 +57,41 @@ Major Patch 1: Added arXiv functionality
 
 arXiv search results powered by arXiv.org
 
-$arxivshow <keyword> - Displays the top result using the searched keyword (including authors, title, summary, link and download link).
+`<prefix>arxivshow <keyword>` - Displays the top result using the searched keyword (including authors, title, summary, link and download link).
 
-$arxivshowlud <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of last updated date.
+`<prefix>arxivshowlud <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of last updated date.
 
-$arxivshowr <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of relevance.
+`<prefix>arxivshowr <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of relevance.
 
-$arxivshowsd <keyword> - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of submitted date. 
+`<prefix>arxivshowsd <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of submitted date. 
 
-$arxivshowsumm <keyword> - Displays top 5 papers using the searched keyword (including authors, title, summary, link and download link).
+`<prefix>arxivshowsumm <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, summary, link and download link).
+
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Major Patch 2: Added Educational memes functionality powered by redditAPI
+
+Commands : 
+
+`<prefix>memes <subreddit_index> <no.of_memes(limit=5)>` - Displays a certain no. of memes from an index passed an argument from a pre-determined list of subreddits, by default 1 and a maximum of 5 at a time. 
+The '<no._of_memes>' is an optional argument as such. 
+Returns error if 
+: i. No subreddit index is passed as argument. 
+ii. Invalid subreddit index is passed as argument. 
+iii. The no. of requested memes is more than 5 at a time.
+
+`<prefix>autoposton <channel>` -  Posts a meme in the specified channel passed as argument at regular intervals (by default 15 minutes) at coordinated time for all servers.
+
+`<prefix>autopostoff` - Turns off autoposting for the channel where it is enabled in a server.
+
+`<prefix>sublist` - Shows a list of available subreddits in './cogs/subreddit.txt' file (currently in gitignore).
+
+`<prefix>addsub <subreddit_name>` - Adds a subreddit to the list of existing subreddits './cogs/subreddit.txt'.
+
+`<prefix>delsub <index>` - Removes subreddit at index passed as argument.
+
+N.B - Errors have been handled for all commands. 
 
 ---------------------------------------------------------------------------------
 
