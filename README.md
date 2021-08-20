@@ -57,6 +57,8 @@ Major Patch 1: Added arXiv functionality
 
 arXiv search results powered by arXiv.org
 
+Commands : 
+
 `<prefix>arxivshow <keyword>` - Displays the top result using the searched keyword (including authors, title, summary, link and download link).
 
 `<prefix>arxivshowlud <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of last updated date.
@@ -70,7 +72,16 @@ arXiv search results powered by arXiv.org
 ---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
-Major Patch 2: Added Educational memes functionality powered by redditAPI
+Major Patch 2: Added Kaggle functionality
+
+Commands : 
+
+`<prefix> list` - Displays top 20 competitions from Kaggle Competition List
+
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Major Patch 3: Added Educational memes functionality powered by redditAPI
 
 Commands : 
 
