@@ -93,7 +93,7 @@ class meme(commands.Cog):
 
 
     # Loop for autoposting every 15 minutes
-    @tasks.loop(seconds = 30)
+    @tasks.loop(minutes = 15)
     async def test(self):
         
         reddit = asyncpraw.Reddit(client_id = "Vng40QEkdlR_VuVphsbxxA", client_secret = "4evSCjg47N9CTtQqqyQUuA8X2I4qXQ", username = "ProfessionalFloor135",  password =  "Qwerty@18606", user_agent = 'EduMemebot')
@@ -133,8 +133,7 @@ class meme(commands.Cog):
             s.append(m)
         meme_list = ''.join(s)
         ema = discord.Embed(title = "Subreddit List", description = f"{meme_list}" , color = discord.Color.green(), inline = False)
-        await ctx.send(embed= ema)
-
+        await ctx.send(embed = ema)
 
     # Command for adding a subreddit in the list (admin only command)
     @commands.command()

@@ -88,6 +88,18 @@ Returns error if
 ii. Invalid subreddit index is passed as argument. 
 iii. The no. of requested memes is more than 5 at a time.
 
+`<prefix>autoposton <channel>` -  Posts a meme in the specified channel passed as argument at regular intervals (by default 15 minutes) at coordinated time for all servers.
+
+`<prefix>autopostoff` - Turns off autoposting for the channel where it is enabled in a server.
+
+`<prefix>sublist` - Shows a list of available subreddits in './cogs/subreddit.txt' file (currently in gitignore).
+
+`<prefix>addsub <subreddit_name>` - Adds a subreddit to the list of existing subreddits './cogs/subreddit.txt'.
+
+`<prefix>delsub <index>` - Removes subreddit at index passed as argument.
+
+N.B - Errors have been handled for all commands.
+
 ---------------------------------------------------------------------------------
 
 So, following the above steps one can easily deploy the bot on a local machine.
