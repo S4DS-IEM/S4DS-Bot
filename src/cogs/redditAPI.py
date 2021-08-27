@@ -121,6 +121,78 @@ class meme(commands.Cog):
             channel = self.client.get_channel(channel_id)
             await channel.send(embed = em8)
 
+    # Command for getting the Subreddit List
+    @commands.command()
+    async def sublist(self, ctx):
+        f = open('./cogs/subreddit.txt', 'r')
+        memes_list = f.readlines()
+        f.close()
+        s = []
+        for x in range(1,(len(memes_list)+1)):
+            m = str(x) + f'. r\{memes_list[x-1]}'
+            s.append(m)
+        meme_list = ''.join(s)
+        ema = discord.Embed(title = "Subreddit List", description = f"{meme_list}" , color = discord.Color.green(), inline = False)
+        await ctx.send(embed= ema)
+
+
+    # Command for adding a subreddit in the list (admin only command)
+    @commands.command()
+    @commands.has_permissions(administrator = True)
+    async def addsub(self, ctx, s):
+        with open('./cogs/subreddit.txt', 'a+') as f5:
+            f5.seek(0)
+            data = f5.read(10000)
+            if len(data) > 0 :
+                f5.write("\n")
+            f5.write(s)
+            f5.close()
+
+        memes_list = []
+        f = open('./cogs/subreddit.txt', 'r')
+        memes_list = f.readlines()
+        f.close()
+        s = []
+        for x in range(1, (len(memes_list)+1)):
+            m = str(x) + f'.  r\{memes_list[x-1]}'
+            s.append(m)
+        meme_list = ''.join(s)
+        em9 = discord.Embed(title = "Subreddit Added Successfully", color = discord.Color.blue(), inline = False)
+        em9.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
+        await ctx.send(embed = em9)
+
+
+    # Command for deleting a subreddit in the list (admin only command)
+    @commands.command()
+    @commands.has_permissions(administrator = True)
+    async def delsub(self, ctx, m : int):
+        memes_list = []
+        with open('./cogs/subreddit.txt', 'r+') as fp:
+            memes_list = fp.readlines()
+            if (m>0) and (m<=len(memes_list)):
+                fp.seek(0)
+                fp.truncate()
+                memes_list.pop(m-1)
+                memes_list[-1] = memes_list[-1].strip()
+                fp.writelines(memes_list)
+                fp.close()
+
+                with open('./cogs/subreddit.txt', 'r') as sp:
+                    list1 = sp.readlines()
+                    sp.close()
+                    s = []
+                    for x in range(1, (len(list1)+1)):
+                        m = str(x) + f'.  r\{list1[x-1]}'
+                        s.append(m)
+                    meme_list = ''.join(s)
+                    em3 = discord.Embed(title = "Subreddit Deleted Successfully", color = discord.Color.blue(), inline = False)
+                    em3.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
+                    await ctx.send(embed = em3)
+            else:
+                em1= discord.Embed(title="Incorrect Index", 
+                description = f"We only have {len(memes_list)} subreddits enlisted in our Subreddit List. \nTrigger the <sublist> command for getting correct Subreddit list" , 
+                color = discord.Color.blue(), inline=False)
+                await ctx.send(embed= em1)
 
     # Error handling for 'meme' command
     @memes.error
@@ -129,8 +201,33 @@ class meme(commands.Cog):
             e2 = discord.Embed(title = "Missing Required Arguement",  description = " Trigger the <memelist> command for getting correct index", color = discord.Color.blue())      
             e2.set_footer(text = "correct command: <prefix>memes <subreddit_index> <no.of_memes(limit=5)>")
             await ctx.send(embed = e2)
-       
 
+    # Error handling for 'addsub' command
+    @addsub.error
+    async def addsub_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            e7 = discord.Embed(title = "{}, you are not an Administrator".format(ctx.author) , color= discord.Color.magenta())
+            await ctx.send(embed = e7)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            e2 = discord.Embed(title = "Missing Required Argument",  color = discord.Color.magenta())
+            e2.set_footer(text = "correct command: <prefix>addsub  <correct subreddit name>")
+            await ctx.send(embed = e2)
+        
+    # Error handling for 'delsub' command
+    @delsub.error
+    async def delsub_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            e5 = discord.Embed(title = "{}, you are not an Administrator".format(ctx.author), color = discord.Color.magenta())
+            await ctx.send(embed = e5)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            e2 = discord.Embed(title = "Missing Required Arguments", color = discord.Color.magenta())
+            e2.set_footer(text = "correct command: <prefix>delsub  <index value of subreddit>")
+            await ctx.send(embed = e2)
+        elif isinstance(error, commands.BadArgument):
+            e7 = discord.Embed(title = "Required Correct Argument", color = discord.Color.magenta())
+            e7.set_footer(text = "correct command: <prefix>delsub  <index value of subreddit>")
+            await ctx.send(embed = e7)
+       
 # Setup Cogs 'meme'
 def setup(client):
     client.add_cog(meme(client))
