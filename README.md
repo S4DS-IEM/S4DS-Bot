@@ -79,6 +79,8 @@ Major Patch 2: Added Kaggle functionality
 ---------------------------------------------------------------------------------
 Major Patch 3: Added Educational Meme functionality using redditAPI
 
+Note: Place 'credentials.txt' in '.src/cogs', and keep your Reddit Credentials in there.
+
 Commands : 
 
 `<prefix>memes <subreddit_index> <no.of_memes(limit=5)>` - Displays a certain no. of memes from an index passed an argument from a pre-determined list of subreddits, by default 1 and a maximum of 5 at a time. 
