@@ -79,6 +79,8 @@ Major Patch 2: Added Kaggle functionality
 ---------------------------------------------------------------------------------
 Major Patch 3: Added Educational Meme functionality using redditAPI
 
+Note: Place 'credentials.txt' in '.src/cogs', and keep your Reddit Credentials in there.
+
 Commands : 
 
 `<prefix>memes <subreddit_index> <no.of_memes(limit=5)>` - Displays a certain no. of memes from an index passed an argument from a pre-determined list of subreddits, by default 1 and a maximum of 5 at a time. 
@@ -87,6 +89,18 @@ Returns error if
 : i. No subreddit index is passed as argument. 
 ii. Invalid subreddit index is passed as argument. 
 iii. The no. of requested memes is more than 5 at a time.
+
+`<prefix>autoposton <channel>` -  Posts a meme in the specified channel passed as argument at regular intervals (by default 15 minutes) at coordinated time for all servers.
+
+`<prefix>autopostoff` - Turns off autoposting for the channel where it is enabled in a server.
+
+`<prefix>sublist` - Shows a list of available subreddits in './cogs/subreddit.txt' file (currently in gitignore).
+
+`<prefix>addsub <subreddit_name>` - Adds a subreddit to the list of existing subreddits './cogs/subreddit.txt'.
+
+`<prefix>delsub <index>` - Removes subreddit at index passed as argument.
+
+N.B - Errors have been handled for all commands.
 
 ---------------------------------------------------------------------------------
 
