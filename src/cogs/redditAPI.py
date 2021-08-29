@@ -29,15 +29,16 @@ class meme(commands.Cog):
     # Command for getting a meme
     @commands.command()
     async def memes(self, ctx, arg : int, x = 1):
-        
-        with open('./cogs/credentials.txt','r') as file_8:
-            s = file_8.readlines()
 
-        reddit = asyncpraw.Reddit(client_id = str(s[0]).strip("\n"), 
-        client_secret = str(s[1]).strip("\n"), 
-        username = str(s[2]).strip("\n"),
-        password =  str(s[3]).strip("\n"), 
-        user_agent = str(s[4]).strip("\n"))
+        with open('./cogs/credentials.json', 'r') as from_file:
+            data = from_file.read()
+        credentials = json.loads(data)
+
+        reddit = asyncpraw.Reddit(client_id = credentials['client_id'],
+        client_secret = credentials['client_secret'],
+        username = credentials['username'],
+        password = credentials['password'],
+        user_agent = 'EduMemebot')
 
         memes_list = []
         f = open('./cogs/subreddit.txt', 'r')
@@ -68,12 +69,12 @@ class meme(commands.Cog):
                     await ctx.send(embed = embed)
                     
             else:
-                embed_1 = discord.Embed(title="Incorrect Index", description = " Trigger the <memelist> command for getting correct index" , color = discord.Color.blue(), inline = False)
-                await ctx.send(embed= embed_1)
+                embed_inc_index = discord.Embed(title="Incorrect Index", description = " Trigger the <memelist> command for getting correct index" , color = discord.Color.blue(), inline = False)
+                await ctx.send(embed= embed_inc_index)
                 
         else:
-            embed_2 = discord.Embed(title = "Range Exceeded", description = "We are bound to provide you maximum 5 memes at a time", color = discord.Color.green())
-            await ctx.send(embed = embed_2)
+            embed_rng_exc = discord.Embed(title = "Range Exceeded", description = "We are bound to provide you maximum 5 memes at a time", color = discord.Color.green())
+            await ctx.send(embed = embed_rng_exc)
 
     # Command for starting AutoPost
     @commands.command(aliases = ['apon'])
@@ -104,14 +105,15 @@ class meme(commands.Cog):
     @tasks.loop(minutes = 15)
     async def test(self):
 
-        with open('./cogs/credentials.txt','r') as file_9:
-            s = file_9.readlines()
-        
-        reddit = asyncpraw.Reddit(client_id = str(s[0]).strip("\n"), 
-        client_secret = str(s[1]).strip("\n"), 
-        username = str(s[2]).strip("\n"),
-        password =  str(s[3]).strip("\n"), 
-        user_agent = str(s[4]).strip("\n"))
+        with open('./cogs/credentials.json', 'r') as from_file:
+            data = from_file.read()
+        credentials = json.loads(data)
+
+        reddit = asyncpraw.Reddit(client_id = credentials['client_id'],
+        client_secret = credentials['client_secret'],
+        username = credentials['username'],
+        password = credentials['password'],
+        user_agent = 'EduMemebot')
 
         memes_list = []
         f = open('./cogs/subreddit.txt', 'r')
@@ -130,12 +132,12 @@ class meme(commands.Cog):
         author = random_sub.author
         pst = "https://www.reddit.com" + random_sub.permalink
                     
-        embed_3 = discord.Embed(title = name, url = pst, description = f'Created by u\{author}', colour = discord.Color.purple())
-        embed_3.set_author(name = f'r\ {subzero}')
-        embed_3.set_image(url = url)
+        embed = discord.Embed(title = name, url = pst, description = f'Created by u\{author}', colour = discord.Color.purple())
+        embed.set_author(name = f'r\ {subzero}')
+        embed.set_image(url = url)
         for channel_id in ap_channel_list:
             channel = self.client.get_channel(channel_id)
-            await channel.send(embed = embed_3)
+            await channel.send(embed = embed)
 
     # Command for getting the Subreddit List
     @commands.command()
@@ -148,8 +150,8 @@ class meme(commands.Cog):
             m = str(x) + f'. r\{memes_list[x-1]}'
             s.append(m)
         meme_list = ''.join(s)
-        embed_4 = discord.Embed(title = "Subreddit List", description = f"{meme_list}" , color = discord.Color.green(), inline = False)
-        await ctx.send(embed = embed_4)
+        embed = discord.Embed(title = "Subreddit List", description = f"{meme_list}" , color = discord.Color.green(), inline = False)
+        await ctx.send(embed = embed)
 
     # Command for adding a subreddit in the list (admin only command)
     @commands.command()
@@ -172,9 +174,9 @@ class meme(commands.Cog):
             m = str(x) + f'.  r\{memes_list[x-1]}'
             s.append(m)
         meme_list = ''.join(s)
-        embed_5 = discord.Embed(title = "Subreddit Added Successfully", color = discord.Color.blue(), inline = False)
-        embed_5.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
-        await ctx.send(embed = embed_5)
+        embed = discord.Embed(title = "Subreddit Added Successfully", color = discord.Color.blue(), inline = False)
+        embed.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
+        await ctx.send(embed = embed)
 
 
     # Command for deleting a subreddit in the list (admin only command)
@@ -200,48 +202,48 @@ class meme(commands.Cog):
                         m = str(x) + f'.  r\{list1[x-1]}'
                         s.append(m)
                     meme_list = ''.join(s)
-                    embed_6 = discord.Embed(title = "Subreddit Deleted Successfully", color = discord.Color.blue(), inline = False)
-                    embed_6.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
-                    await ctx.send(embed = embed_6)
+                    embed = discord.Embed(title = "Subreddit Deleted Successfully", color = discord.Color.blue(), inline = False)
+                    embed.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
+                    await ctx.send(embed = embed)
             else:
-                embed_7= discord.Embed(title="Incorrect Index", 
+                embed_inc_index= discord.Embed(title="Incorrect Index", 
                 description = f"We only have {len(memes_list)} subreddits enlisted in our Subreddit List. \nTrigger the <sublist> command for getting correct Subreddit list" , 
                 color = discord.Color.blue(), inline=False)
-                await ctx.send(embed= embed_7)
+                await ctx.send(embed= embed_inc_index)
 
     # Error handling for 'meme' command
     @memes.error
     async def memes_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            embed_8 = discord.Embed(title = "Missing Required Arguement",  description = " Trigger the <memelist> command for getting correct index", color = discord.Color.blue())      
-            embed_8.set_footer(text = "correct command: <prefix>memes <subreddit_index> <no.of_memes(limit=5)>")
-            await ctx.send(embed = embed_8)
+            embed = discord.Embed(title = "Missing Required Arguement",  description = " Trigger the <memelist> command for getting correct index", color = discord.Color.blue())      
+            embed.set_footer(text = "correct command: <prefix>memes <subreddit_index> <no.of_memes(limit=5)>")
+            await ctx.send(embed = embed)
 
     # Error handling for 'addsub' command
     @addsub.error
     async def addsub_error(self, ctx, error):
         if isinstance(error, commands.CheckFailure):
-            embed_9 = discord.Embed(title = "{}, you are not an Administrator".format(ctx.author) , color= discord.Color.magenta())
-            await ctx.send(embed = embed_9)
+            embed_not_admin = discord.Embed(title = "{}, you are not an Administrator".format(ctx.author) , color= discord.Color.magenta())
+            await ctx.send(embed = embed_not_admin)
         elif isinstance(error, commands.MissingRequiredArgument):
-            embed_10 = discord.Embed(title = "Missing Required Argument",  color = discord.Color.magenta())
-            embed_10.set_footer(text = "correct command: <prefix>addsub  <correct subreddit name>")
-            await ctx.send(embed = embed_10)
+            embed_miss_req_arg = discord.Embed(title = "Missing Required Argument",  color = discord.Color.magenta())
+            embed_miss_req_arg.set_footer(text = "correct command: <prefix>addsub  <correct subreddit name>")
+            await ctx.send(embed = embed_miss_req_arg)
         
     # Error handling for 'delsub' command
     @delsub.error
     async def delsub_error(self, ctx, error):
         if isinstance(error, commands.CheckFailure):
-            embed_11 = discord.Embed(title = "{}, you are not an Administrator".format(ctx.author), color = discord.Color.magenta())
-            await ctx.send(embed = embed_11)
+            embed_not_admin = discord.Embed(title = "{}, you are not an Administrator".format(ctx.author), color = discord.Color.magenta())
+            await ctx.send(embed = embed_not_admin)
         elif isinstance(error, commands.MissingRequiredArgument):
-            embed_12 = discord.Embed(title = "Missing Required Arguments", color = discord.Color.magenta())
-            embed_12.set_footer(text = "correct command: <prefix>delsub  <index value of subreddit>")
-            await ctx.send(embed = embed_12)
+            embed_miss_req_arg = discord.Embed(title = "Missing Required Arguments", color = discord.Color.magenta())
+            embed_miss_req_arg.set_footer(text = "correct command: <prefix>delsub  <index value of subreddit>")
+            await ctx.send(embed = embed_miss_req_arg)
         elif isinstance(error, commands.BadArgument):
-            embed_13 = discord.Embed(title = "Required Correct Argument", color = discord.Color.magenta())
-            embed_13.set_footer(text = "correct command: <prefix>delsub  <index value of subreddit>")
-            await ctx.send(embed = embed_13)
+            embed_correct_req_arg = discord.Embed(title = "Correct Required Argument", color = discord.Color.magenta())
+            embed_correct_req_arg.set_footer(text = "correct command: <prefix>delsub  <index value of subreddit>")
+            await ctx.send(embed = embed_correct_req_arg)
        
 # Setup Cogs 'meme'
 def setup(client):
