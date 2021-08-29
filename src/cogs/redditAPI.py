@@ -33,12 +33,8 @@ class meme(commands.Cog):
         with open('./cogs/credentials.json', 'r') as from_file:
             data = from_file.read()
         credentials = json.loads(data)
-
-        reddit = asyncpraw.Reddit(client_id = credentials['client_id'],
-        client_secret = credentials['client_secret'],
-        username = credentials['username'],
-        password = credentials['password'],
-        user_agent = 'EduMemebot')
+        
+        reddit = asyncpraw.Reddit(**credentials)
 
         memes_list = []
         f = open('./cogs/subreddit.txt', 'r')
@@ -109,12 +105,7 @@ class meme(commands.Cog):
             data = from_file.read()
         credentials = json.loads(data)
 
-        reddit = asyncpraw.Reddit(client_id = credentials['client_id'],
-        client_secret = credentials['client_secret'],
-        username = credentials['username'],
-        password = credentials['password'],
-        user_agent = 'EduMemebot')
-
+        reddit = asyncpraw.Reddit(**credentials)
         memes_list = []
         f = open('./cogs/subreddit.txt', 'r')
         memes_list = f.readlines()
