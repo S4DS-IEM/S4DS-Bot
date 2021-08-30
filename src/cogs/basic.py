@@ -4,6 +4,7 @@ from discord.enums import Status
 from discord.ext import commands, tasks
 from itertools import cycle
 import asyncio
+import json
 
 # Cycle which consists of the bot statuses to be cycled through at regular intervals
 status = cycle(['arXiv', 'Kaggle', 'redditAPI'])
@@ -18,8 +19,41 @@ class basic(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         self.change_status.start()
-        print("Bot is ready")
+        print("Bot is ready") 
 
+    # Setting prefix as default on joining a server
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        with open ("prefixes.json", "r") as f:
+            prefixes = json.load(f)
+        prefixes[str(guild.id)] = '.'
+        with open ("prefixes.json", "w") as f:
+            json.dump(prefixes, f, indent = 4)  
+        
+    # Deleting prefix on leaving server
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        with open ("prefixes.json", "r") as f:
+            prefixes = json.load(f)
+        prefixes.pop(str(guild.id))
+        with open ("prefixes.json", "w") as f:
+            json.dump(prefixes, f, indent = 4) 
+
+    # Command to assign custom prefix
+    @commands.command()
+    @commands.has_permissions(administrator = True)
+    async def setprefix(self, ctx, prefix):
+        with open ("prefixes.json", "r") as f:
+            prefixes = json.load(f)
+            prefixes[str(ctx.guild.id)] = prefix
+
+        with open ("prefixes.json", "w") as f:
+            json.dump(prefixes, f, indent = 4)
+        embed = discord.Embed(title = "Prefix changed!", 
+        description = f'Prefix changed to `{prefix}` !',
+        color = discord.Color.teal())    
+        await ctx.send(embed = embed)
+                     
     # Loop that cycles bot status at every 15 seconds
     @tasks.loop(seconds = 15)
     async def change_status(self):
@@ -45,6 +79,18 @@ class basic(commands.Cog):
         await ctx.send(embed = embed)
         await asyncio.sleep(2)
         await ctx.channel.purge(limit = 1)
+    
+    # Error handler for 'setprefix' command
+    @setprefix.error
+    async def on_command_err(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            embed_title = "Missing Permissions!"
+            embed_desc = "Missing `Administrator` Permissions!"
+            embed_color = discord.Color.red()
+        embed = discord.Embed(title = embed_title, description = embed_desc, 
+        color = embed_color)
+        embed.set_footer(text = f'Command error encountered by : {ctx.author.display_name}')
+        await ctx.send(embed = embed)
 
     # Error handler for `clear` command
     @clear.error

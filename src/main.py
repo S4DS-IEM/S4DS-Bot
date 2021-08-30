@@ -1,14 +1,22 @@
 # Imports
 import discord
 import os
+from discord.enums import DefaultAvatar
 from discord.ext import commands
+import json 
 
 # Managing default and priviledged gateway intents
 intents = discord.Intents.default()
 intents.members = True
 
-# Create instance of a bot object
-client = commands.Bot(command_prefix = '-', intents = intents)
+# Function that checks for prefix for that specific guild from a set of guilds
+def get_prefix(client, message):
+    with open ("prefixes.json", "r") as f:
+        prefix = json.load(f)
+    return prefix[str(message.guild.id)]
+
+# Initialise bot instance
+client = commands.Bot(command_prefix = get_prefix, intents = intents)
 
 # Error message displayed in discord channel in case invalid command is entered
 @client.event
