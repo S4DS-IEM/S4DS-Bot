@@ -104,6 +104,16 @@ N.B - Errors have been handled for all commands.
 
 ---------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------
+Minor Patch 1 : Added custom server prefixes 
+
+Now, the bot can have different prefixes in different servers, i.e the server owners / admins can set a different prefix than the bot's default one.
+
+Command : 
+`<prefix>setprefix <new_prefix>` : Sets / changes a new prefix for the guild. Requires `administrator` perms.
+
+---------------------------------------------------------------------------------
+
 So, following the above steps one can easily deploy the bot on a local machine.
 
 Documentation for advanced and specific functions will be updated shortly.
