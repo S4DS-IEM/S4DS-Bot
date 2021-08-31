@@ -17,6 +17,7 @@ def get_prefix(client, message):
 
 # Initialise bot instance
 client = commands.Bot(command_prefix = get_prefix, intents = intents)
+client.remove_command("help")
 
 # Error message displayed in discord channel in case invalid command is entered
 @client.event
