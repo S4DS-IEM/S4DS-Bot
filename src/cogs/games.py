@@ -9,7 +9,11 @@ class games(commands.Cog):
         self.client = client
     
     # Command for `coinflip` 
-    @commands.command(aliases = ['cf', 'tosscoin', 'tc'])
+    coinflip_help ='''***Description :*** 
+                            Tosses a fair coin\n
+                            ***Syntax :***
+                            `<prefix>coinflip`'''
+    @commands.command(name ="coinflip", help = coinflip_help, aliases = ['cf', 'tosscoin', 'tc'])
     async def coinflip(self, ctx):
         cf_res = ['Heads', 'Tails']
         res = random.choice(cf_res)
@@ -18,7 +22,11 @@ class games(commands.Cog):
         await ctx.send(embed = embed)
 
     # Command for `die toss`
-    @commands.command(aliases = ['die', '6face'])
+    tossdie_help ='''***Description :*** 
+                            Tosses a fair die\n
+                            ***Syntax :***
+                            `<prefix>tossdie`'''
+    @commands.command(name ="tossdie", help = tossdie_help, aliases = ['die', '6face'])
     async def tossdie(self, ctx):
         td_res = [int(i) for i in range(1,7)]
         res = random.choice(td_res)

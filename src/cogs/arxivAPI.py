@@ -4,13 +4,17 @@ from xml.dom import minidom
     
 from discord.ext import commands
 
-class ArxivAPI(commands.Cog):
+class arxivapi(commands.Cog):
     def __init__(self, client):
         self.client = client
 
 
     #Gets the top search result from arXiv API and displays the paper along with related details (including summary) in an embed  
-    @commands.command()
+    arxivshow_help ='''***Description :*** 
+                            Shows the top searched result\n
+                            ***Syntax :***
+                            `<prefix>arxivshow <keyword>`'''
+    @commands.command(name ="arxivshow", help = arxivshow_help)
     async def arxivshow(self, ctx, *, search):
         query = search.replace(" ", "+")
         url = f'http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=1'
@@ -41,7 +45,11 @@ class ArxivAPI(commands.Cog):
             await ctx.send('.................................................................................................................................................')
 
     #Gets the top 5 search results (sorted as last updated) from arXiv API and displays respective papers along with related details (excluding summary) in succesive embeds  
-    @commands.command()
+    arxivshowlud_help ='''***Description :*** 
+                            Shows top 5 paper on the basis of last updated date\n
+                            ***Syntax :***
+                            `<prefix>arxivshowlud <keyword>`'''
+    @commands.command(name ="arxivshowlud", help = arxivshowlud_help)
     async def arxivshowlud(self, ctx, *, search):
         query = search.replace(" ", "+")
         url = f'http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=5&sortBy=lastUpdatedDate&sortOrder=ascending'
@@ -69,7 +77,11 @@ class ArxivAPI(commands.Cog):
             await ctx.send('.................................................................................................................................................')
 
     #Gets the top 5 search results (sorted as relevance) from arXiv API and displays respective papers along with related details (excluding summary) in succesive embeds
-    @commands.command()
+    arxivshowr_help ='''***Description :*** 
+                            Shows top 5 paper on the basis of relevance\n
+                            ***Syntax :***
+                            `<prefix>arxivshowr <keyword>`'''
+    @commands.command(name ="arxvshowr", help = arxivshowr_help)
     async def arxivshowr(self, ctx, *, search):
         query = search.replace(" ", "+")
         url = f'http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=5&sortBy=relevance&sortOrder=ascending'
@@ -97,7 +109,11 @@ class ArxivAPI(commands.Cog):
             await ctx.send('.................................................................................................................................................')
 
     #Gets the top 5 search results (sorted as submitted date) from arXiv API and displays respective papers along with related details (excluding summary) in succesive embeds
-    @commands.command()
+    arxivshowsd_help ='''***Description :*** 
+                            Shows top 5 paper and sorts the result in order of submitted date\n
+                            ***Syntax :***
+                            `<prefix>arxivshowsd <keyword>`'''
+    @commands.command(name="arxivshowsd", help=arxivshowsd_help)
     async def arxivshowsd(self, ctx, *, search):
         query = search.replace(" ", "+")
         url = f'http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=5&sortBy=submittedDate&sortOrder=ascending'
@@ -125,7 +141,11 @@ class ArxivAPI(commands.Cog):
             await ctx.send('.................................................................................................................................................')
 
     #Gets the top 5 search results from arXiv API and displays respective papers along with related details (including summary) in succesive embeds
-    @commands.command()
+    arxivshowsumm_help ='''***Description :*** 
+                            Shows top 5 paper alongwith it's summary\n
+                            ***Syntax :***
+                            `<prefix>arxivshowsumm <keyword>`'''   
+    @commands.command(name ="arxivshowsumm", help = arxivshowsumm_help)
     async def arxivshowsumm(self, ctx, *, search):
         query = search.replace(" ", "+")
         url = f'http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=5'
@@ -157,4 +177,4 @@ class ArxivAPI(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(ArxivAPI(client)) 
+    client.add_cog(arxivapi(client)) 
