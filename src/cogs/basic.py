@@ -40,7 +40,13 @@ class basic(commands.Cog):
             json.dump(prefixes, f, indent = 4) 
 
     # Command to assign custom prefix
-    @commands.command()
+    setprefix_help = '''***Description :*** 
+                            Changes bot prefix to new string passed as argument\n
+                            ***Syntax :***
+                            `<prefix>setprefix <new_prefix>` \n
+                            **Permissions Required :**
+                            `Administrator`'''
+    @commands.command(name ="setprefix", help = setprefix_help)
     @commands.has_permissions(administrator = True)
     async def setprefix(self, ctx, prefix):
         with open ("prefixes.json", "r") as f:
@@ -60,7 +66,11 @@ class basic(commands.Cog):
         await self.client.change_presence(activity = discord.Game(next(status)))
 
     # Command that returns latency of the client in channel where it is triggered
-    @commands.command()
+    ping_help ='''***Description :*** 
+                            Returns the latency of the user or the client in ms\n
+                            ***Syntax :***
+                            `<prefix>ping`'''
+    @commands.command(name ="ping", help = ping_help)
     async def ping(self, ctx):
         embed = discord.Embed(title = "Ping",
         description = f'Pong! In {round(self.client.latency*1000)} ms.',
@@ -70,7 +80,11 @@ class basic(commands.Cog):
 
     # Command that deletes a specified number of messages from the channel 
     # where it is triggered
-    @commands.command()
+    clear_help ='''***Description :*** 
+                            Clears a certain amount of messages from the channel\n
+                            ***Syntax :***
+                            `<prefix>clear <frequency>`'''
+    @commands.command(name ="clear", help = clear_help)
     @commands.has_permissions(manage_messages = True)
     async def clear(self, ctx, amount : int):
         await ctx.channel.purge(limit = amount)

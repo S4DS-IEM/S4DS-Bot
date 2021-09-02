@@ -1,4 +1,5 @@
 # Imports
+from os import name
 import discord
 from discord.ext import commands,tasks
 import random
@@ -27,7 +28,11 @@ class meme(commands.Cog):
 
 
     # Command for getting a meme
-    @commands.command()
+    memes_help ='''***Description :*** 
+                            Command for getting a meme or a desired number of memes(not exceeding 5), based on user's wish\n
+                            ***Syntax :***
+                            `<prefix>memes <subreddit_index> <no.of_memes(limit=5)>`'''
+    @commands.command(name ="memes", help = memes_help) 
     async def memes(self, ctx, arg : int, x = 1):
 
         with open('./cogs/credentials.json', 'r') as from_file:
@@ -73,7 +78,11 @@ class meme(commands.Cog):
             await ctx.send(embed = embed_rng_exc)
 
     # Command for starting AutoPost
-    @commands.command(aliases = ['apon'])
+    autoposton_help = '''***Description :*** 
+                            Adds a subreddit within the existing list\n
+                            ***Syntax :***
+                            `<prefix>addsub <subreddit_name>`''' 
+    @commands.command(name ="autoposton", help = autoposton_help, aliases = ['apon'])
     async def autoposton(self, ctx, channel : commands.TextChannelConverter):
         with open ('./cogs/autoid.json', 'r') as f:
             ap_channels = json.load(f)
@@ -85,7 +94,11 @@ class meme(commands.Cog):
         ap_channel_list.append(channel.id)
 
     # Command for ending AutoPost
-    @commands.command(aliases = ['apoff'])
+    autopostoff_help = '''***Description :*** 
+                            Command for ending AutoPost\n
+                            ***Syntax :***
+                            `<prefix>autopostoff`'''
+    @commands.command(name ="autopostoff", help = autopostoff_help, aliases = ['apoff'])
     async def autopostoff(self, ctx):
         with open ('./cogs/autoid.json', 'r' ) as f:
             ap_channels = json.load(f)
@@ -131,7 +144,11 @@ class meme(commands.Cog):
             await channel.send(embed = embed)
 
     # Command for getting the Subreddit List
-    @commands.command()
+    sublist_help = '''***Description :*** 
+                            A list of available subreddit is displayed\n
+                            ***Syntax :***
+                            `<prefix>sublist` '''
+    @commands.command(name ="sublist", help = sublist_help)
     async def sublist(self, ctx):
         f = open('./cogs/subreddit.txt', 'r')
         memes_list = f.readlines()
@@ -145,7 +162,13 @@ class meme(commands.Cog):
         await ctx.send(embed = embed)
 
     # Command for adding a subreddit in the list (admin only command)
-    @commands.command()
+    addsub_help = '''***Description :*** 
+                            Adds a subreddit within the existing list\n
+                            ***Syntax :***
+                            `<prefix>addsub <subreddit_name>` \n
+                            **Permissions Required :**
+                            `Administrator`'''
+    @commands.command(name ="addsub", help = addsub_help)
     @commands.has_permissions(administrator = True)
     async def addsub(self, ctx, s):
         with open('./cogs/subreddit.txt', 'a+') as f5:
@@ -171,7 +194,13 @@ class meme(commands.Cog):
 
 
     # Command for deleting a subreddit in the list (admin only command)
-    @commands.command()
+    delsub_help = '''***Description :*** 
+                            Deletes a subreddit from a given index\n
+                            ***Syntax :***
+                            `<prefix>delsub <index>` \n
+                            **Permissions Required :**
+                            `Administrator`'''
+    @commands.command(name ="delsub",  help = delsub_help)
     @commands.has_permissions(administrator = True)
     async def delsub(self, ctx, m : int):
         memes_list = []

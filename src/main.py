@@ -4,6 +4,9 @@ import os
 from discord.enums import DefaultAvatar
 from discord.ext import commands
 import json 
+from customHelp import help
+
+cust_help=help.CustomHelpCommand()
 
 # Managing default and priviledged gateway intents
 intents = discord.Intents.default()
@@ -16,7 +19,8 @@ def get_prefix(client, message):
     return prefix[str(message.guild.id)]
 
 # Initialise bot instance
-client = commands.Bot(command_prefix = get_prefix, intents = intents)
+client = commands.Bot(command_prefix = get_prefix, intents = intents, help_command=cust_help)
+#client.remove_command("help")
 
 # Error message displayed in discord channel in case invalid command is entered
 @client.event

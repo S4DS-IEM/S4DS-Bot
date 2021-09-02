@@ -7,13 +7,17 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 api = KaggleApi()
 api.authenticate()
 
-class KaggleAPI(commands.Cog):
+class kaggleapi(commands.Cog):
     def __init__(self, client):
         self.client = client
 
         
     #Gets the entire list of competitions from Kaggle API and displays each competition including respective details
-    @commands.command()
+    list_help ='''***Description :*** 
+                            Enlists top 20 competetions from Kaggle\n
+                            ***Syntax :***
+                            `<prefix>list'''
+    @commands.command(name ="list", help = list_help)
     async def list(self, ctx):
         listcomp = api.competitions_list_with_http_info(async_req = True)
         tup = listcomp.get()
@@ -43,5 +47,5 @@ class KaggleAPI(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(KaggleAPI(client)) 
+    client.add_cog(kaggleapi(client)) 
     
