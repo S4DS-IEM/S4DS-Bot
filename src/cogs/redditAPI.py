@@ -7,6 +7,7 @@ import asyncpraw
 import time
 from asyncpraw.reddit import Subreddit
 import json
+from asyncpraw import Reddit
 
 ap_channel_list = []
 
@@ -39,49 +40,48 @@ class meme(commands.Cog):
             data = from_file.read()
         credentials = json.loads(data)
         
-        reddit = asyncpraw.Reddit(**credentials)
+        async with Reddit(**credentials) as reddit:
+            memes_list = []
+            f = open('./cogs/subreddit.txt', 'r')
+            memes_list = f.readlines()
+            f.close()
 
-        memes_list = []
-        f = open('./cogs/subreddit.txt', 'r')
-        memes_list = f.readlines()
-        f.close()
-
-        if (x <= 5):
-            if (arg > 0) and (arg <= len(memes_list)):
-                subred = str(memes_list[arg-1])
-                subreddit = await reddit.subreddit(subred)
-                all_meme = []
-                    
-                hot = subreddit.hot(limit = 500)
-                async for submission in hot:
-                    all_meme.append(submission)
-                    
-                for i in range(x):
-                    random_sub = random.choice(all_meme)
-                    name = random_sub.title
-                    url = random_sub.url
-                    author = random_sub.author
-                    pst = "https://www.reddit.com" + random_sub.permalink
-                    
-                    embed = discord.Embed(title = name , url = pst, description = f'Created by u\{author}', colour = discord.Color.purple())
-                    embed.set_author(name = f'r\ {subred}')
-                    embed.set_image(url = url)
-                    embed.set_footer(text = f'Ordered by {ctx.author}', icon_url = ctx.author.avatar_url)
-                    await ctx.send(embed = embed)
+            if (x <= 5):
+                if (arg > 0) and (arg <= len(memes_list)):
+                    subred = str(memes_list[arg-1])
+                    subreddit = await reddit.subreddit(subred)
+                    all_meme = []
+                        
+                    hot = subreddit.hot(limit = 500)
+                    async for submission in hot:
+                        all_meme.append(submission)
+                        
+                    for i in range(x):
+                        random_sub = random.choice(all_meme)
+                        name = random_sub.title
+                        url = random_sub.url
+                        author = random_sub.author
+                        pst = "https://www.reddit.com" + random_sub.permalink
+                        
+                        embed = discord.Embed(title = name , url = pst, description = f'Created by u\{author}', colour = discord.Color.purple())
+                        embed.set_author(name = f'r\{subred}')
+                        embed.set_image(url = url)
+                        embed.set_footer(text = f'Ordered by {ctx.author}', icon_url = ctx.author.avatar_url)
+                        await ctx.send(embed = embed)
+                        
+                else:
+                    embed_inc_index = discord.Embed(title="Incorrect Index", description = " Trigger the <memelist> command for getting correct index" , color = discord.Color.blue(), inline = False)
+                    await ctx.send(embed= embed_inc_index)
                     
             else:
-                embed_inc_index = discord.Embed(title="Incorrect Index", description = " Trigger the <memelist> command for getting correct index" , color = discord.Color.blue(), inline = False)
-                await ctx.send(embed= embed_inc_index)
-                
-        else:
-            embed_rng_exc = discord.Embed(title = "Range Exceeded", description = "We are bound to provide you maximum 5 memes at a time", color = discord.Color.green())
-            await ctx.send(embed = embed_rng_exc)
+                embed_rng_exc = discord.Embed(title = "Range Exceeded", description = "We are bound to provide you maximum 5 memes at a time", color = discord.Color.green())
+                await ctx.send(embed = embed_rng_exc)
 
     # Command for starting AutoPost
     autoposton_help = '''***Description :*** 
-                            Adds a subreddit within the existing list\n
+                            Command for starting AutoPost\n
                             ***Syntax :***
-                            `<prefix>addsub <subreddit_name>`''' 
+                            `<prefix>autoposton <channel_name>`''' 
     @commands.command(name ="autoposton", help = autoposton_help, aliases = ['apon'])
     async def autoposton(self, ctx, channel : commands.TextChannelConverter):
         with open ('./cogs/autoid.json', 'r') as f:
@@ -118,30 +118,30 @@ class meme(commands.Cog):
             data = from_file.read()
         credentials = json.loads(data)
 
-        reddit = asyncpraw.Reddit(**credentials)
-        memes_list = []
-        f = open('./cogs/subreddit.txt', 'r')
-        memes_list = f.readlines()
-        f.close()
-        
-        subzero = random.choice(memes_list)
-        subreddit = await reddit.subreddit(subzero)
-        all_meme = []
-        hot = subreddit.hot(limit = 500)
-        async for submission in hot:
-            all_meme.append(submission)
-        random_sub = random.choice(all_meme)
-        name = random_sub.title
-        url = random_sub.url
-        author = random_sub.author
-        pst = "https://www.reddit.com" + random_sub.permalink
-                    
-        embed = discord.Embed(title = name, url = pst, description = f'Created by u\{author}', colour = discord.Color.purple())
-        embed.set_author(name = f'r\ {subzero}')
-        embed.set_image(url = url)
-        for channel_id in ap_channel_list:
-            channel = self.client.get_channel(channel_id)
-            await channel.send(embed = embed)
+        async with Reddit(**credentials) as reddit:
+            memes_list = []
+            f = open('./cogs/subreddit.txt', 'r')
+            memes_list = f.readlines()
+            f.close()
+            
+            subzero = random.choice(memes_list)
+            subreddit = await reddit.subreddit(subzero)
+            all_meme = []
+            hot = subreddit.hot(limit = 500)
+            async for submission in hot:
+                all_meme.append(submission)
+            random_sub = random.choice(all_meme)
+            name = random_sub.title
+            url = random_sub.url
+            author = random_sub.author
+            pst = "https://www.reddit.com" + random_sub.permalink
+                        
+            embed = discord.Embed(title = name, url = pst, description = f'Created by u\{author}', colour = discord.Color.purple())
+            embed.set_author(name = f'r\{subzero}')
+            embed.set_image(url = url)
+            for channel_id in ap_channel_list:
+                channel = self.client.get_channel(channel_id)
+                await channel.send(embed = embed)
 
     # Command for getting the Subreddit List
     sublist_help = '''***Description :*** 
