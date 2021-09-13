@@ -11,7 +11,7 @@ from asyncpraw import Reddit
 
 ap_channel_list = []
 
-inc_subreddits = ['DataScienceMemes\n', 'ProgrammerHumor\n', 'machinelearningmemes\n', 'mathmemes\n', 'linuxmemes\n', 'codingmemes\n', 'educationalmemes\n', 'applememes\n', 'windowsmemes']
+default_subreddits = ['DataScienceMemes\n', 'ProgrammerHumor\n', 'machinelearningmemes\n', 'mathmemes\n', 'linuxmemes\n', 'codingmemes\n', 'educationalmemes\n', 'applememes\n', 'windowsmemes']
 
 subs_list = []
 
@@ -38,11 +38,11 @@ class meme(commands.Cog):
             subs = json.load(f)
         
         if str(guild.id) not in subs:
-            subs[str(guild.id)] = inc_subreddits
+            subs[str(guild.id)] = default_subreddits
 
             with open ('./cogs/subred.json', 'w') as f:
                 json.dump(subs, f, indent = 4)
-                subs_list.append(inc_subreddits)
+                subs_list.append(default_subreddits)
         
     # Deactivating meme services on leaving server
     @commands.Cog.listener()
@@ -149,9 +149,9 @@ class meme(commands.Cog):
 
             subred_list = ['DataScienceMemes', 'ProgrammerHumor', 'machinelearningmemes', 'mathmemes', 'linuxmemes', 'codingmemes', 'educationalmemes', 'applememes', 'windowsmemes']
             
-            subzero = random.choice(subred_list)
+            random_sub = random.choice(subred_list)
 
-            subreddit = await reddit.subreddit(subzero)
+            subreddit = await reddit.subreddit(random_sub)
             all_meme = []
             hot = subreddit.hot(limit = 500)
             async for submission in hot:
@@ -163,7 +163,7 @@ class meme(commands.Cog):
             pst = "https://www.reddit.com" + random_sub.permalink
                         
             embed = discord.Embed(title = name, url = pst, description = f'Created by u/{author}', colour = discord.Color.purple())
-            embed.set_author(name = f'r/{subzero}')
+            embed.set_author(name = f'r/{random_sub}')
             embed.set_image(url = url)
             for channel_id in ap_channel_list:
                 channel = self.client.get_channel(channel_id)
@@ -203,21 +203,21 @@ class meme(commands.Cog):
     @commands.has_permissions(administrator = True)
     async def addsub(self, ctx, s):
 
-        subsi_list = []
+        subred_list = []
         guild = ctx.message.guild.id
 
         with open ('./cogs/subred.json', 'r') as f:
             subs = json.load(f)
         
         memes_list = subs[str(guild)]
-        bech = memes_list[-1] + '\n'
+        last_second_sub = memes_list[-1] + '\n'
         memes_list.pop()
-        memes_list.append(bech)
+        memes_list.append(last_second_sub)
         memes_list.append(str(s))
 
         with open ('./cogs/subred.json', 'w') as f:
             json.dump(subs, f, indent = 4)
-            subsi_list.append(memes_list)
+            subred_list.append(memes_list)
 
         s = []
         for x in range(1, (len(memes_list)+1)):
@@ -240,7 +240,7 @@ class meme(commands.Cog):
     @commands.has_permissions(administrator = True)
     async def delsub(self, ctx, m : int):
         
-        subsi_list = []
+        subred_list = []
         guild = ctx.message.guild.id
 
         with open ('./cogs/subred.json', 'r') as f:
@@ -252,7 +252,7 @@ class meme(commands.Cog):
 
                 with open ('./cogs/subred.json', 'w') as f:
                     json.dump(subs, f, indent = 4)
-                    subsi_list.append(memes_list)
+                    subred_list.append(memes_list)
 
                     s = []
                     for x in range(1, (len(memes_list)+1)):
