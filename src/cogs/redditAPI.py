@@ -1,5 +1,6 @@
 # Imports
 from os import name
+import os
 import discord
 from discord.ext import commands,tasks
 import random
@@ -64,9 +65,7 @@ class meme(commands.Cog):
 
         guild = ctx.message.guild.id
 
-        with open('./cogs/credentials.json', 'r') as from_file:
-            data = from_file.read()
-        credentials = json.loads(data)
+        credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
         
         async with Reddit(**credentials) as reddit:
             with open ('./cogs/subred.json', 'r') as f:
@@ -141,9 +140,7 @@ class meme(commands.Cog):
     @tasks.loop(minutes = 15)
     async def test(self):
 
-        with open('./cogs/credentials.json', 'r') as from_file:
-            data = from_file.read()
-        credentials = json.loads(data)
+        credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
 
         async with Reddit(**credentials) as reddit:
 
