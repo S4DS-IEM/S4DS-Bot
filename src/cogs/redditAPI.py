@@ -25,7 +25,7 @@ class meme(commands.Cog):
     # 'Cog.listener' event which triggers autoposting in servers where it is enabled
     @commands.Cog.listener()
     async def on_ready(self):
-        with open ('./cogs/autoid.json', 'r') as f:
+        with open ('./src/cogs/autoid.json', 'r') as f:
             ap_channels = json.load(f)
         for i in ap_channels:
             if (ap_channels[i] != "0"):
@@ -35,23 +35,23 @@ class meme(commands.Cog):
     # Activating meme services on joining a server
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        with open ('./cogs/subred.json', 'r') as f:
+        with open ('./src/cogs/subred.json', 'r') as f:
             subs = json.load(f)
         
         if str(guild.id) not in subs:
             subs[str(guild.id)] = default_subreddits
 
-            with open ('./cogs/subred.json', 'w') as f:
+            with open ('./src/cogs/subred.json', 'w') as f:
                 json.dump(subs, f, indent = 4)
                 subs_list.append(default_subreddits)
         
     # Deactivating meme services on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        with open ('./cogs/subred.json', 'r') as f:
+        with open ('./src/cogs/subred.json', 'r') as f:
             subs = json.load(f)
         subs.pop(str(guild.id))
-        with open ('./cogs/subred.json', 'w') as f:
+        with open ('./src/cogs/subred.json', 'w') as f:
             json.dump(subs, f, indent = 4) 
 
 
@@ -68,7 +68,7 @@ class meme(commands.Cog):
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
         
         async with Reddit(**credentials) as reddit:
-            with open ('./cogs/subred.json', 'r') as f:
+            with open ('./src/cogs/subred.json', 'r') as f:
                 subs = json.load(f)
                 memes_list = subs[str(guild)]
 
@@ -110,12 +110,12 @@ class meme(commands.Cog):
                             `<prefix>autoposton <channel_name>`''' 
     @commands.command(name ="autoposton", help = autoposton_help, aliases = ['apon'])
     async def autoposton(self, ctx, channel : commands.TextChannelConverter):
-        with open ('./cogs/autoid.json', 'r') as f:
+        with open ('./src/cogs/autoid.json', 'r') as f:
             ap_channels = json.load(f)
 
         ap_channels[str(ctx.guild.id)] = str(channel.id)
 
-        with open ('./cogs/autoid.json', 'w') as f:
+        with open ('./src/cogs/autoid.json', 'w') as f:
             json.dump(ap_channels, f, indent = 4)
         ap_channel_list.append(channel.id)
 
@@ -126,12 +126,12 @@ class meme(commands.Cog):
                             `<prefix>autopostoff`'''
     @commands.command(name ="autopostoff", help = autopostoff_help, aliases = ['apoff'])
     async def autopostoff(self, ctx):
-        with open ('./cogs/autoid.json', 'r' ) as f:
+        with open ('./src/cogs/autoid.json', 'r' ) as f:
             ap_channels = json.load(f)
         del_channel = int(ap_channels[str(ctx.guild.id)])
         ap_channels[str(ctx.guild.id)] = "0"
 
-        with open ('./cogs/autoid.json', 'w') as f:
+        with open ('./src/cogs/autoid.json', 'w') as f:
             json.dump(ap_channels, f, indent = 4)
         ap_channel_list.remove(del_channel)
 
@@ -176,7 +176,7 @@ class meme(commands.Cog):
         
         guild = ctx.message.guild.id
 
-        with open ('./cogs/subred.json', 'r') as f:
+        with open ('./src/cogs/subred.json', 'r') as f:
             subs = json.load(f)
 
         s = subs[str(guild)]
@@ -203,7 +203,7 @@ class meme(commands.Cog):
         subred_list = []
         guild = ctx.message.guild.id
 
-        with open ('./cogs/subred.json', 'r') as f:
+        with open ('./src/cogs/subred.json', 'r') as f:
             subs = json.load(f)
         
         memes_list = subs[str(guild)]
@@ -212,7 +212,7 @@ class meme(commands.Cog):
         memes_list.append(last_second_sub)
         memes_list.append(str(s))
 
-        with open ('./cogs/subred.json', 'w') as f:
+        with open ('./src/cogs/subred.json', 'w') as f:
             json.dump(subs, f, indent = 4)
             subred_list.append(memes_list)
 
@@ -240,14 +240,14 @@ class meme(commands.Cog):
         subred_list = []
         guild = ctx.message.guild.id
 
-        with open ('./cogs/subred.json', 'r') as f:
+        with open ('./src/cogs/subred.json', 'r') as f:
             subs = json.load(f)
             memes_list = subs[str(guild)]
             if (m>0) and (m<=len(memes_list)):
                 memes_list.pop(m-1)
                 memes_list[-1] = memes_list[-1].strip()
 
-                with open ('./cogs/subred.json', 'w') as f:
+                with open ('./src/cogs/subred.json', 'w') as f:
                     json.dump(subs, f, indent = 4)
                     subred_list.append(memes_list)
 
