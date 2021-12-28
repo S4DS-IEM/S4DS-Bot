@@ -14,7 +14,7 @@ intents.members = True
 
 # Function that checks for prefix for that specific guild from a set of guilds
 def get_prefix(client, message):
-    with open ("prefixes.json", "r") as f:
+    with open ("./src/prefixes.json", "r") as f:
         prefix = json.load(f)
     return prefix[str(message.guild.id)]
 
