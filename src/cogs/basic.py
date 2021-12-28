@@ -24,19 +24,19 @@ class basic(commands.Cog):
     # Setting prefix as default on joining a server
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        with open ("prefixes.json", "r") as f:
+        with open ("./src/prefixes.json", "r") as f:
             prefixes = json.load(f)
         prefixes[str(guild.id)] = '.'
-        with open ("prefixes.json", "w") as f:
+        with open ("./src/prefixes.json", "w") as f:
             json.dump(prefixes, f, indent = 4)  
         
     # Deleting prefix on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        with open ("prefixes.json", "r") as f:
+        with open ("./src/prefixes.json", "r") as f:
             prefixes = json.load(f)
         prefixes.pop(str(guild.id))
-        with open ("prefixes.json", "w") as f:
+        with open ("./src/prefixes.json", "w") as f:
             json.dump(prefixes, f, indent = 4) 
 
     # Command to assign custom prefix
@@ -49,11 +49,11 @@ class basic(commands.Cog):
     @commands.command(name ="setprefix", help = setprefix_help)
     @commands.has_permissions(administrator = True)
     async def setprefix(self, ctx, prefix):
-        with open ("prefixes.json", "r") as f:
+        with open ("./src/prefixes.json", "r") as f:
             prefixes = json.load(f)
             prefixes[str(ctx.guild.id)] = prefix
 
-        with open ("prefixes.json", "w") as f:
+        with open ("./src/prefixes.json", "w") as f:
             json.dump(prefixes, f, indent = 4)
         embed = discord.Embed(title = "Prefix changed!", 
         description = f'Prefix changed to `{prefix}` !',
