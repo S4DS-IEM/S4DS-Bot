@@ -9,6 +9,8 @@ Resources for discord.py :
 github - https://github.com/Rapptz/discord.py
 Documentation - https://discordpy.readthedocs.io/en/stable/
 
+ - All dependencies listed in `requirements.txt`
+
 -----------------------------------------------------------------------------
 
 Setting up the bot : 
@@ -29,18 +31,19 @@ Step 3 :
 
     3.5 : Navigate to the third option "Bot" and under the "Build a Bot" section click the "Add Bot" and finalise your selection. (Note, this is irreversible for that application.)
 
-    3.6 : Now, under the label "TOKEN", click "Copy" to copy the token and save it in "token.txt" in the directory "/src" of the code as it is the only valid key to control your bot using your code.
+    3.6 : Now, under the label "TOKEN", click "Copy" to copy the token and save it in the corresponding text file or environment variable `DISCORD-TOKEN`. 
 
     3.7 : Check the following permissions : 
         i. PUBLIC BOT
         ii. REQUIRES OAUTH2 CODE GRANT
         iii. PRESENCE INTENT
         iv. SERVER MEMBERS INTENT
+        v. MESSAGE CONTENT INTENT (To Be Enforced w.e.f 30th April, 2022)
 
     3.8 : Now, go to the second option "OAuth2" and under label "SCOPES" select "bot".
           A new option "BOT PERMISSIONS" pops out where you can choose which permissions are checked when the bot is invited to a server.
 
-          Copy the link generated under "SCOPES" and paste it in address box of browser.
+          Copy the URL generated under "SCOPES" and paste it in address box of browser, and complete the OAuth2 Process.
 
 ---------------------------------------------------------------------------------
 
@@ -72,6 +75,10 @@ arXiv search results powered by arXiv.org
 ---------------------------------------------------------------------------------
 Major Patch 2: Added Kaggle functionality
 
+Additional Requirements : Kaggle API Token
+
+ - Environment Method : Define environment variables labelled `KAGGLE_USERNAME` and `KAGGLE_KEY` and copy contents from `kaggle.json` in respective fields. 
+
 `<prefix> list` - Displays top 20 competitions from Kaggle Competition List
 
 ---------------------------------------------------------------------------------
@@ -79,7 +86,9 @@ Major Patch 2: Added Kaggle functionality
 ---------------------------------------------------------------------------------
 Major Patch 3: Added Educational Meme functionality using redditAPI
 
-Note: Place 'credentials.txt' in '.src/cogs', and keep your Reddit Credentials in there.
+Additional Requirements : reddit API Credentials
+
+ - Using Environment : Store corresponding values to keys : `client_id`, `client_secret`, `username`, `password` and `user_agent` in json format in an environment variable labelled `REDDIT_CREDENTIALS`. 
 
 Commands : 
 
@@ -114,6 +123,5 @@ Command :
 
 ---------------------------------------------------------------------------------
 
-So, following the above steps one can easily deploy the bot on a local machine.
+So, following the above steps one can easily deploy the bot on a local machine or as a web application hosted on a cloud platform.
 
-Documentation for advanced and specific functions will be updated shortly.

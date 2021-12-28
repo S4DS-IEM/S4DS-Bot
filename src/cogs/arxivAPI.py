@@ -81,7 +81,7 @@ class arxivapi(commands.Cog):
                             Shows top 5 paper on the basis of relevance\n
                             ***Syntax :***
                             `<prefix>arxivshowr <keyword>`'''
-    @commands.command(name ="arxvshowr", help = arxivshowr_help)
+    @commands.command(name ="arxivshowr", help = arxivshowr_help)
     async def arxivshowr(self, ctx, *, search):
         query = search.replace(" ", "+")
         url = f'http://export.arxiv.org/api/query?search_query=all:{query}&start=0&max_results=5&sortBy=relevance&sortOrder=ascending'
