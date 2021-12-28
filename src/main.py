@@ -90,4 +90,4 @@ token = f.read()
 f.close()
 
 # Code to run the bot
-client.run(token)
+client.run(os.environ['DISCORD_TOKEN'])
