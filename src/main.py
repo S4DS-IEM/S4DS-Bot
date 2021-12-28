@@ -80,14 +80,14 @@ async def on_reload_error(ctx, error):
     await ctx.send(embed = embed)
 
 # Loop that loads cogs when bot is online
-for filename in os.listdir('./cogs'):
+for filename in os.listdir('./src/cogs'):
     if filename.endswith('.py'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
 # Read token from file (local machine) or environment (deployment)
-f = open("token.txt", "r")
-token = f.read()
-f.close()
+# f = open("token.txt", "r")
+# token = f.read()
+# f.close()
 
 # Code to run the bot
 client.run(os.environ['DISCORD_TOKEN'])
