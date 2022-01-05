@@ -10,11 +10,8 @@ from asyncpraw.reddit import Subreddit
 import json
 from asyncpraw import Reddit
 
-default_subreddits = ['DataScienceMemes\n', 'ProgrammerHumor\n', 'machinelearningmemes\n', 'mathmemes\n', 'linuxmemes\n', 'codingmemes\n', 'educationalmemes\n', 'applememes\n', 'windowsmemes']
-
+# List of application-default subreddits
 default_subred = ['DataScienceMemes', 'ProgrammerHumor', 'machinelearningmemes', 'mathmemes', 'linuxmemes', 'codingmemes', 'educationalmemes', 'applememes', 'windowsmemes']
-
-subs_list = []
 
 #  Create a class 'meme' which inherits from the 'commands.Cog' class
 class meme(commands.Cog):
@@ -24,11 +21,8 @@ class meme(commands.Cog):
         self.subred_table_name = "public.subredlist" # subreddits list table name
         self.ap_table_name = "public.autopostlist" # autopost table name
 
-
-    # 'Cog.listener' event which triggers autoposting in servers where it is enabled
-    @commands.Cog.listener()
-    async def on_ready(self):
-
+    # Check if table and columns pertaining to autopost is present
+    async def ap_table_check(self):
         # If doesn't exist, creates table pertaining to channels enabling autopost
         await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.ap_table_name} (guild_id bigint NOT NULL, channel_id bigint NOT NULL, CONSTRAINT autopostlist_pkey PRIMARY KEY (guild_id), CONSTRAINT unique_channel UNIQUE (channel_id))")
 
@@ -37,54 +31,33 @@ class meme(commands.Cog):
 
         await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.ap_table_name} ADD COLUMN IF NOT EXISTS channel_id bigint NOT NULL CONSTRAINT unique_channel UNIQUE")
 
+    # Check if table and columns pertaining to subreddits list is present
+    async def subred_table_check(self):
+        # If doesn't exist, creates table pertaining to list of subreddits for each guild
+        await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.subred_table_name}(guild_id bigint NOT NULL, subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL, CONSTRAINT subredlist_pkey PRIMARY KEY (guild_id))")
+
+        # If columns are deleted, to re-generate (with constraints)
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS guild_id bigint NOT NULL CONSTRAINT subredlist_pkey PRIMARY KEY")
+
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL")
+
+    # 'Cog.listener' event which triggers autoposting in servers where it is enabled
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.ap_table_check()
         self.autopost.start()
 
     # Activating meme services on joining a server
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        
-        # If doesn't exist, creates table pertaining to list of subreddits for each guild
-        await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.subred_table_name}(guild_id bigint NOT NULL, subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL, CONSTRAINT subredlist_pkey PRIMARY KEY (guild_id))")
-
-        # If columns are deleted, to re-generate (with constraints)
-        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS guild_id bigint NOT NULL CONSTRAINT subredlist_pkey PRIMARY KEY")
-
-        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL")
-
-        # Now the part where array of default subreddits is added to the table
-
+        await self.subred_table_check()
         await self.client.pg_con.execute(f"INSERT INTO {self.subred_table_name}(guild_id, subredlist) VALUES($1, $2)", guild.id, default_subred)
 
-        with open ('./src/cogs/subred.json', 'r') as f:
-            subs = json.load(f)
-        
-        if str(guild.id) not in subs:
-            subs[str(guild.id)] = default_subreddits
-
-            with open ('./src/cogs/subred.json', 'w') as f:
-                json.dump(subs, f, indent = 4)
-                subs_list.append(default_subreddits)
-        
     # Deactivating meme services on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-
-        # If doesn't exist, creates table pertaining to list of subreddits for each guild
-        await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.subred_table_name}(guild_id bigint NOT NULL, subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL, CONSTRAINT subredlist_pkey PRIMARY KEY (guild_id))")
-
-        # If columns are deleted, to re-generate (with constraints)
-        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS guild_id bigint NOT NULL CONSTRAINT subredlist_pkey PRIMARY KEY")
-
-        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL")
-
+        await self.subred_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.subred_table_name} WHERE guild_id = $1 ", guild.id)
-
-        with open ('./src/cogs/subred.json', 'r') as f:
-            subs = json.load(f)
-        subs.pop(str(guild.id))
-        with open ('./src/cogs/subred.json', 'w') as f:
-            json.dump(subs, f, indent = 4) 
-
 
     # Command for getting a meme
     memes_help ='''***Description :*** 
@@ -93,19 +66,18 @@ class meme(commands.Cog):
                             `<prefix>memes <subreddit_index> <no.of_memes(limit=5)>`'''
     @commands.command(name ="memes", help = memes_help) 
     async def memes(self, ctx, arg : int, x = 1):
-
-        guild = ctx.message.guild.id
-
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
         
         async with Reddit(**credentials) as reddit:
-            with open ('./src/cogs/subred.json', 'r') as f:
-                subs = json.load(f)
-                memes_list = subs[str(guild)]
+            await self.subred_table_check()
+
+            subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
+
+            guild_id, sublist = subredlist
 
             if (x <= 5):
-                if (arg > 0) and (arg <= len(memes_list)):
-                    subred = str(memes_list[arg-1])
+                if (arg > 0) and (arg <= len(sublist)):
+                    subred = str(sublist[arg-1])
                     subreddit = await reddit.subreddit(subred)
                     all_meme = []
                         
@@ -141,6 +113,7 @@ class meme(commands.Cog):
                             `<prefix>autoposton <channel_name>`''' 
     @commands.command(name ="autoposton", help = autoposton_help, aliases = ['apon'])
     async def autoposton(self, ctx, channel : commands.TextChannelConverter):
+        await self.ap_table_check()
         await self.client.pg_con.execute(f"INSERT INTO {self.ap_table_name}(guild_id, channel_id) VALUES($1, $2)", ctx.guild.id, channel.id)
 
     # Command for ending AutoPost
@@ -150,19 +123,17 @@ class meme(commands.Cog):
                             `<prefix>autopostoff`'''
     @commands.command(name ="autopostoff", help = autopostoff_help, aliases = ['apoff'])
     async def autopostoff(self, ctx):
+        await self.ap_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.ap_table_name} WHERE guild_id = $1", ctx.guild.id)
 
     # Loop for autoposting every 15 minutes
     @tasks.loop(seconds = 30)
     async def autopost(self):
-
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
 
         async with Reddit(**credentials) as reddit:
 
-            subred_list = ['DataScienceMemes', 'ProgrammerHumor', 'machinelearningmemes', 'mathmemes', 'linuxmemes', 'codingmemes', 'educationalmemes', 'applememes', 'windowsmemes']
-            
-            random_sub = random.choice(subred_list)
+            random_sub = random.choice(default_subred)
 
             subreddit = await reddit.subreddit(random_sub)
             all_meme = []
@@ -190,19 +161,19 @@ class meme(commands.Cog):
                             `<prefix>sublist` '''
     @commands.command(name ="sublist", help = sublist_help)
     async def sublist(self, ctx):
-        
-        guild = ctx.message.guild.id
+        await self.subred_table_check()
 
-        with open ('./src/cogs/subred.json', 'r') as f:
-            subs = json.load(f)
+        subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
-        s = subs[str(guild)]
-        n = []
+        guild_id, sublist = subredlist
 
-        for x in range(1,(len(s)+1)):
-            m = str(x) + f'. r/{s[x-1]}'
-            n.append(m)
-        meme_list = ''.join(n)
+        templist = []
+
+        for x in range(1,(len(sublist)+1)):
+            m = str(x) + f'.  r/{sublist[x-1]}' + '\n'
+            templist.append(m)
+        templist[-1] = templist[-1].strip('\n')
+        meme_list = ''.join(templist)
         embed = discord.Embed(title = "Subreddit List", description = f"{meme_list}" , color = discord.Color.green(), inline = False)
         await ctx.send(embed = embed)
 
@@ -216,28 +187,26 @@ class meme(commands.Cog):
     @commands.command(name ="addsub", help = addsub_help)
     @commands.has_permissions(administrator = True)
     async def addsub(self, ctx, s):
+        await self.subred_table_check()
 
-        subred_list = []
-        guild = ctx.message.guild.id
+        # Fetch original list of subreddits for server
+        subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
-        with open ('./src/cogs/subred.json', 'r') as f:
-            subs = json.load(f)
-        
-        memes_list = subs[str(guild)]
-        last_second_sub = memes_list[-1] + '\n'
-        memes_list.pop()
-        memes_list.append(last_second_sub)
-        memes_list.append(str(s))
+        guild_id, sublist = subredlist
 
-        with open ('./src/cogs/subred.json', 'w') as f:
-            json.dump(subs, f, indent = 4)
-            subred_list.append(memes_list)
+        # Add new subreddit
+        # Need to check if value passed as subreddit is valid
+        sublist.append(s)
 
-        s = []
-        for x in range(1, (len(memes_list)+1)):
-            m = str(x) + f'.  r/{memes_list[x-1]}'
-            s.append(m)
-        meme_list = ''.join(s)
+        await self.client.pg_con.execute(f"UPDATE {self.subred_table_name} SET subredlist = $2 WHERE guild_id = $1", ctx.guild.id, sublist)
+
+        templist = []
+
+        for x in range(1, (len(sublist)+1)):
+            m = str(x) + f'.  r/{sublist[x-1]}' + '\n'
+            templist.append(m)
+        templist[-1] = templist[-1].strip('\n')
+        meme_list = ''.join(templist)
         embed = discord.Embed(title = "Subreddit Added Successfully", color = discord.Color.blue(), inline = False)
         embed.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
         await ctx.send(embed = embed)
@@ -253,34 +222,37 @@ class meme(commands.Cog):
     @commands.command(name ="delsub",  help = delsub_help)
     @commands.has_permissions(administrator = True)
     async def delsub(self, ctx, m : int):
-        
-        subred_list = []
-        guild = ctx.message.guild.id
+        await self.subred_table_check()
 
-        with open ('./src/cogs/subred.json', 'r') as f:
-            subs = json.load(f)
-            memes_list = subs[str(guild)]
-            if (m>0) and (m<=len(memes_list)):
-                memes_list.pop(m-1)
-                memes_list[-1] = memes_list[-1].strip()
+        # Fetch original list of subreddits for server
+        subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
-                with open ('./src/cogs/subred.json', 'w') as f:
-                    json.dump(subs, f, indent = 4)
-                    subred_list.append(memes_list)
+        guild_id, sublist = subredlist
 
-                    s = []
-                    for x in range(1, (len(memes_list)+1)):
-                        m = str(x) + f'.  r/{memes_list[x-1]}'
-                        s.append(m)
-                    meme_list = ''.join(s)
-                    embed = discord.Embed(title = "Subreddit Deleted Successfully", color = discord.Color.blue(), inline = False)
-                    embed.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
-                    await ctx.send(embed = embed)
-            else:
-                embed_inc_index= discord.Embed(title="Incorrect Index", 
-                description = f"We only have {len(memes_list)} subreddits enlisted in our Subreddit List. \nTrigger the <sublist> command for getting correct Subreddit list" , 
-                color = discord.Color.blue(), inline=False)
-                await ctx.send(embed= embed_inc_index)
+        # Check if index of argument is within the range of index of subreddits
+        if (m>0) and (m<=len(sublist)):
+
+            # If yes, remove subreddit whose index has been passed as argument
+            sublist.pop(m-1)
+
+            # Update the new value in the corresponding row in table
+            await self.client.pg_con.execute(f"UPDATE {self.subred_table_name} SET subredlist = $2 WHERE guild_id = $1", ctx.guild.id, sublist)
+
+            templist = []
+            for x in range(1, (len(sublist)+1)):
+                m = str(x) + f'.  r/{sublist[x-1]}' + '\n'
+                templist.append(m)
+            templist[-1] = templist[-1].strip('\n')
+            meme_list = ''.join(templist)
+            embed = discord.Embed(title = "Subreddit Deleted Successfully", color = discord.Color.blue(), inline = False)
+            embed.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
+            await ctx.send(embed = embed)
+
+        else:
+            embed_inc_index= discord.Embed(title="Incorrect Index", 
+            description = f"We only have {len(sublist)} subreddits enlisted in our Subreddit List. \nTrigger the <sublist> command for getting correct Subreddit list" , 
+            color = discord.Color.blue(), inline=False)
+            await ctx.send(embed= embed_inc_index)
 
     # Error handling for 'meme' command
     @memes.error
