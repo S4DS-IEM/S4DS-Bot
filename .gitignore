@@ -128,9 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .DS_Store
-token.txt
-credentials.json
-prefixes.json
-autoid.json
-subred.json
-.env
+src/cogs/prefixes.json
+src/cogs/subred.json
+

@@ -10,8 +10,6 @@ from asyncpraw.reddit import Subreddit
 import json
 from asyncpraw import Reddit
 
-ap_channel_list = []
-
 default_subreddits = ['DataScienceMemes\n', 'ProgrammerHumor\n', 'machinelearningmemes\n', 'mathmemes\n', 'linuxmemes\n', 'codingmemes\n', 'educationalmemes\n', 'applememes\n', 'windowsmemes']
 
 subs_list = []
@@ -21,16 +19,21 @@ class meme(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.ap_table_name = "public.autopostlist" # autopost table name
 
     # 'Cog.listener' event which triggers autoposting in servers where it is enabled
     @commands.Cog.listener()
     async def on_ready(self):
-        with open ('./src/cogs/autoid.json', 'r') as f:
-            ap_channels = json.load(f)
-        for i in ap_channels:
-            if (ap_channels[i] != "0"):
-                ap_channel_list.append(int(ap_channels[i]))
-        self.test.start()
+
+        # If doesn't exist, creates table pertaining to channels enabling autopost
+        await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.ap_table_name} (guild_id bigint NOT NULL, channel_id bigint NOT NULL, CONSTRAINT autopostlist_pkey PRIMARY KEY (guild_id), CONSTRAINT unique_channel UNIQUE (channel_id))")
+
+        # If columns are deleted, to re-generate (with constraints)
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.ap_table_name} ADD COLUMN IF NOT EXISTS guild_id bigint NOT NULL CONSTRAINT autopostlist_pkey PRIMARY KEY")
+
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.ap_table_name} ADD COLUMN IF NOT EXISTS channel_id bigint NOT NULL CONSTRAINT unique_channel UNIQUE")
+
+        self.autopost.start()
 
     # Activating meme services on joining a server
     @commands.Cog.listener()
@@ -110,14 +113,7 @@ class meme(commands.Cog):
                             `<prefix>autoposton <channel_name>`''' 
     @commands.command(name ="autoposton", help = autoposton_help, aliases = ['apon'])
     async def autoposton(self, ctx, channel : commands.TextChannelConverter):
-        with open ('./src/cogs/autoid.json', 'r') as f:
-            ap_channels = json.load(f)
-
-        ap_channels[str(ctx.guild.id)] = str(channel.id)
-
-        with open ('./src/cogs/autoid.json', 'w') as f:
-            json.dump(ap_channels, f, indent = 4)
-        ap_channel_list.append(channel.id)
+        await self.client.pg_con.execute(f"INSERT INTO {self.ap_table_name}(guild_id, channel_id) VALUES($1, $2)", ctx.guild.id, channel.id)
 
     # Command for ending AutoPost
     autopostoff_help = '''***Description :*** 
@@ -126,19 +122,11 @@ class meme(commands.Cog):
                             `<prefix>autopostoff`'''
     @commands.command(name ="autopostoff", help = autopostoff_help, aliases = ['apoff'])
     async def autopostoff(self, ctx):
-        with open ('./src/cogs/autoid.json', 'r' ) as f:
-            ap_channels = json.load(f)
-        del_channel = int(ap_channels[str(ctx.guild.id)])
-        ap_channels[str(ctx.guild.id)] = "0"
-
-        with open ('./src/cogs/autoid.json', 'w') as f:
-            json.dump(ap_channels, f, indent = 4)
-        ap_channel_list.remove(del_channel)
-
+        await self.client.pg_con.execute(f"DELETE FROM {self.ap_table_name} WHERE guild_id = $1", ctx.guild.id)
 
     # Loop for autoposting every 15 minutes
-    @tasks.loop(minutes = 15)
-    async def test(self):
+    @tasks.loop(seconds = 30)
+    async def autopost(self):
 
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
 
@@ -158,13 +146,14 @@ class meme(commands.Cog):
             url = random_sub.url
             author = random_sub.author
             pst = "https://www.reddit.com" + random_sub.permalink
+
+            ap_channel_data = await self.client.pg_con.fetch(f"SELECT * FROM {self.ap_table_name}")
                         
             embed = discord.Embed(title = name, url = pst, description = f'Created by u/{author}', colour = discord.Color.purple())
             embed.set_author(name = f'r/{random_sub}')
             embed.set_image(url = url)
-            for channel_id in ap_channel_list:
-                channel = self.client.get_channel(channel_id)
-                await channel.send(embed = embed)
+            
+            [await self.client.get_channel(channel_id).send(embed=embed) for guild_id, channel_id in ap_channel_data]
 
     # Command for getting the Subreddit List
     sublist_help = '''***Description :*** 
