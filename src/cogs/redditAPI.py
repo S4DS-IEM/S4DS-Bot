@@ -12,6 +12,8 @@ from asyncpraw import Reddit
 
 default_subreddits = ['DataScienceMemes\n', 'ProgrammerHumor\n', 'machinelearningmemes\n', 'mathmemes\n', 'linuxmemes\n', 'codingmemes\n', 'educationalmemes\n', 'applememes\n', 'windowsmemes']
 
+default_subred = ['DataScienceMemes', 'ProgrammerHumor', 'machinelearningmemes', 'mathmemes', 'linuxmemes', 'codingmemes', 'educationalmemes', 'applememes', 'windowsmemes']
+
 subs_list = []
 
 #  Create a class 'meme' which inherits from the 'commands.Cog' class
@@ -19,7 +21,9 @@ class meme(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.subred_table_name = "public.subredlist" # subreddits list table name
         self.ap_table_name = "public.autopostlist" # autopost table name
+
 
     # 'Cog.listener' event which triggers autoposting in servers where it is enabled
     @commands.Cog.listener()
@@ -38,6 +42,19 @@ class meme(commands.Cog):
     # Activating meme services on joining a server
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
+        
+        # If doesn't exist, creates table pertaining to list of subreddits for each guild
+        await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.subred_table_name}(guild_id bigint NOT NULL, subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL, CONSTRAINT subredlist_pkey PRIMARY KEY (guild_id))")
+
+        # If columns are deleted, to re-generate (with constraints)
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS guild_id bigint NOT NULL CONSTRAINT subredlist_pkey PRIMARY KEY")
+
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL")
+
+        # Now the part where array of default subreddits is added to the table
+
+        await self.client.pg_con.execute(f"INSERT INTO {self.subred_table_name}(guild_id, subredlist) VALUES($1, $2)", guild.id, default_subred)
+
         with open ('./src/cogs/subred.json', 'r') as f:
             subs = json.load(f)
         
@@ -51,6 +68,17 @@ class meme(commands.Cog):
     # Deactivating meme services on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
+
+        # If doesn't exist, creates table pertaining to list of subreddits for each guild
+        await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.subred_table_name}(guild_id bigint NOT NULL, subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL, CONSTRAINT subredlist_pkey PRIMARY KEY (guild_id))")
+
+        # If columns are deleted, to re-generate (with constraints)
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS guild_id bigint NOT NULL CONSTRAINT subredlist_pkey PRIMARY KEY")
+
+        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL")
+
+        await self.client.pg_con.execute(f"DELETE FROM {self.subred_table_name} WHERE guild_id = $1 ", guild.id)
+
         with open ('./src/cogs/subred.json', 'r') as f:
             subs = json.load(f)
         subs.pop(str(guild.id))
