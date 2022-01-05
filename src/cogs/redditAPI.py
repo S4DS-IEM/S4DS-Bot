@@ -81,7 +81,7 @@ class meme(commands.Cog):
                     subreddit = await reddit.subreddit(subred)
                     all_meme = []
                         
-                    hot = subreddit.hot(limit = 500)
+                    hot = subreddit.hot(limit = 100)
                     async for submission in hot:
                         all_meme.append(submission)
                         
@@ -130,14 +130,15 @@ class meme(commands.Cog):
     @tasks.loop(seconds = 30)
     async def autopost(self):
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
-
+        await self.ap_table_check()
+        
         async with Reddit(**credentials) as reddit:
 
             random_sub = random.choice(default_subred)
 
             subreddit = await reddit.subreddit(random_sub)
             all_meme = []
-            hot = subreddit.hot(limit = 500)
+            hot = subreddit.hot(limit = 10)
             async for submission in hot:
                 all_meme.append(submission)
             random_sub = random.choice(all_meme)
