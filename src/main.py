@@ -5,22 +5,40 @@ from discord.enums import DefaultAvatar
 from discord.ext import commands
 import json 
 from customHelp import help
+from dotenv import load_dotenv
+import asyncpg 
+from asyncpg.pool import create_pool
 
-cust_help=help.CustomHelpCommand()
+# Look for a .env file, if found, it will load the environment variables from the file and make them 
+# accessible
+load_dotenv()
+
+# Load Custom Help Commands
+cust_help = help.CustomHelpCommand()
 
 # Managing default and priviledged gateway intents
 intents = discord.Intents.default()
 intents.members = True
+intents.messages = True
 
 # Function that checks for prefix for that specific guild from a set of guilds
 def get_prefix(client, message):
-    with open ("./src/prefixes.json", "r") as f:
+    with open ("./src/cogs/prefixes.json", "r") as f:
         prefix = json.load(f)
     return prefix[str(message.guild.id)]
 
 # Initialise bot instance
-client = commands.Bot(command_prefix = get_prefix, intents = intents, help_command=cust_help)
-#client.remove_command("help")
+client = commands.Bot(command_prefix = None, intents = intents, help_command=cust_help)
+
+# Create database connection pool
+db_name = os.environ['DATABASE_NAME']
+db_user = os.environ['DATABASE_USER']
+db_pass = os.environ['DATABASE_PASSWORD']
+
+async def create_dbpool():
+    client.pg_con = await asyncpg.create_pool(database=db_name, user=db_user, password=db_pass)
+
+client.command_prefix = get_prefix
 
 # Error message displayed in discord channel in case invalid command is entered
 @client.event
@@ -84,10 +102,8 @@ for filename in os.listdir('./src/cogs'):
     if filename.endswith('.py'):
         client.load_extension(f'cogs.{filename[:-3]}')
 
-# Read token from file (local machine) or environment (deployment)
-# f = open("token.txt", "r")
-# token = f.read()
-# f.close()
+# Connect to Postgres
+client.loop.run_until_complete(create_dbpool())
 
 # Code to run the bot
 client.run(os.environ['DISCORD_TOKEN'])

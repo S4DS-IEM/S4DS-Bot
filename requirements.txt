@@ -1,3 +1,5 @@
-asyncpraw==7.4.0
+asyncpg==0.25.0
+asyncpraw==7.5.0
 discord.py==1.7.3
 kaggle==1.5.12
+python-dotenv==0.19.2
