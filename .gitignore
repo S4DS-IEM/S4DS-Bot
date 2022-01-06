@@ -128,6 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .DS_Store
-src/cogs/prefixes.json
-src/cogs/subred.json
+
 

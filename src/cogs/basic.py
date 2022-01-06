@@ -2,6 +2,7 @@
 import discord
 from discord.enums import Status 
 from discord.ext import commands, tasks
+import os
 from itertools import cycle
 import asyncio
 import json
@@ -13,7 +14,7 @@ status = cycle(['arXiv', 'Kaggle', 'redditAPI'])
 class basic(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.pref_table = "public.prefixes" # Table for prefixes
+        self.pref_table = os.environ['PREFIXES_TABLE'] # Table for prefixes
 
     # Check if table and column pertaining to prefixes is present
     async def pref_table_check(self):
@@ -35,24 +36,12 @@ class basic(commands.Cog):
     # Setting prefix as default on joining a server
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        with open ("./src/cogs/prefixes.json", "r") as f:
-            prefixes = json.load(f)
-        prefixes[str(guild.id)] = '.'
-        with open ("./src/cogs/prefixes.json", "w") as f:
-            json.dump(prefixes, f, indent = 4)  
-
         await self.pref_table_check()
         await self.client.pg_con.execute(f"INSERT INTO {self.pref_table}(server_id, server_prefix) VALUES($1, $2)", guild.id, '.')
 
     # Deleting prefix on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        with open ("./src/cogs/prefixes.json", "r") as f:
-            prefixes = json.load(f)
-        prefixes.pop(str(guild.id))
-        with open ("./src/cogs/prefixes.json", "w") as f:
-            json.dump(prefixes, f, indent = 4) 
-
         await self.pref_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.pref_table} WHERE server_id = $1", guild.id)
 
@@ -68,13 +57,6 @@ class basic(commands.Cog):
     @commands.command(name ="setprefix", help = setprefix_help)
     @commands.has_permissions(administrator = True)
     async def setprefix(self, ctx, prefix):
-        with open ("./src/cogs/prefixes.json", "r") as f:
-            prefixes = json.load(f)
-            prefixes[str(ctx.guild.id)] = prefix
-
-        with open ("./src/cogs/prefixes.json", "w") as f:
-            json.dump(prefixes, f, indent = 4)
-
         await self.pref_table_check()
         
         if isinstance(prefix, str) and len(prefix)>0 and len(prefix)<=5:
