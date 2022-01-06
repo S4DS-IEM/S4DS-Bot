@@ -18,8 +18,8 @@ class meme(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.subred_table_name = "public.subredlist" # subreddits list table name
-        self.ap_table_name = "public.autopostlist" # autopost table name
+        self.subred_table_name = os.environ['SUBREDDITS_TABLE'] # subreddits list table name
+        self.ap_table_name = os.environ['AUTOPOST_TABLE'] # autopost table name
 
     # Check if table and columns pertaining to autopost is present
     async def ap_table_check(self):
@@ -45,7 +45,7 @@ class meme(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await self.ap_table_check()
-        self.autopost.start()
+        await self.autopost.start()
 
     # Activating meme services on joining a server
     @commands.Cog.listener()
@@ -53,11 +53,15 @@ class meme(commands.Cog):
         await self.subred_table_check()
         await self.client.pg_con.execute(f"INSERT INTO {self.subred_table_name}(guild_id, subredlist) VALUES($1, $2)", guild.id, default_subred)
 
-    # Deactivating meme services on leaving server
+    # Deactivating meme services and autoposting on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
+        # subreddits list
         await self.subred_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.subred_table_name} WHERE guild_id = $1 ", guild.id)
+        # autopost
+        await self.ap_table_check()
+        await self.client.pg_con.execute(f"DELETE FROM {self.ap_table_name} WHERE guild_id = $1", guild.id)
 
     # Command for getting a meme
     memes_help ='''***Description :*** 
@@ -81,7 +85,7 @@ class meme(commands.Cog):
                     subreddit = await reddit.subreddit(subred)
                     all_meme = []
                         
-                    hot = subreddit.hot(limit = 100)
+                    hot = subreddit.hot(limit=500)
                     async for submission in hot:
                         all_meme.append(submission)
                         
@@ -127,7 +131,7 @@ class meme(commands.Cog):
         await self.client.pg_con.execute(f"DELETE FROM {self.ap_table_name} WHERE guild_id = $1", ctx.guild.id)
 
     # Loop for autoposting every 15 minutes
-    @tasks.loop(seconds = 30)
+    @tasks.loop(minutes=1)
     async def autopost(self):
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
         await self.ap_table_check()
@@ -138,7 +142,7 @@ class meme(commands.Cog):
 
             subreddit = await reddit.subreddit(random_sub)
             all_meme = []
-            hot = subreddit.hot(limit = 10)
+            hot = subreddit.hot(limit=500)
             async for submission in hot:
                 all_meme.append(submission)
             random_sub = random.choice(all_meme)
