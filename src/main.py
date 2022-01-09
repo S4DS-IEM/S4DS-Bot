@@ -3,11 +3,9 @@ import discord
 import os
 from discord.enums import DefaultAvatar
 from discord.ext import commands
-import json 
 from customHelp import help
 from dotenv import load_dotenv
 import asyncpg 
-from asyncpg.pool import create_pool
 
 # Look for a .env file, if found, it will load the environment variables from the file and make them 
 # accessible
@@ -50,63 +48,6 @@ async def get_prefix(client, message):
     return await client.pg_con.fetchrow(f"SELECT server_prefix FROM {pref_table} WHERE server_id = $1", message.guild.id)
 
 client.command_prefix = get_prefix
-
-# Error message displayed in discord channel in case invalid command is entered
-@client.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        embed = discord.Embed(title = "Invalid Command!", description = "Command Not Found!",
-        color = discord.Color.dark_red())
-        await ctx.send(embed = embed)
-
-# Command to load cogs while bot is online
-@client.command()
-@commands.has_permissions(administrator = True)
-async def load(ctx, extension):
-    client.load_extension(f'cogs.{extension}')
-
-# Error message displayed when user triggers `load` command without 
-# being granted required permissions
-@load.error
-async def on_load_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        embed = discord.Embed(title = "Missing Permissions!",
-        description = "Must have `administrator` permissions to use this command!",
-        color = discord.Color.greyple())
-        await ctx.send(embed = embed)
-
-# Command to unload cogs when bot is online
-@client.command()
-@commands.has_permissions(administrator = True)
-async def unload(ctx, extension):
-    client.unload_extension(f'cogs.{extension}')
-
-# Error message displayed when user triggers `unload` command without 
-# being granted required permissions
-@unload.error
-async def on_unload_error(ctx, error):
-    embed = discord.Embed(title = "Missing Permissions!",
-    description = "Must have `administrator` permissions to use this command!",
-    color = discord.Color.greyple())
-    await ctx.send(embed = embed)
-
-# Command to reload (unload then load) cogs when bot is online. It serves as 
-# an efficient way to add/remove/update/fix cogs while bot is actively serving
-# its purpose.
-@client.command()
-@commands.has_permissions(administrator = True)
-async def reload(ctx, extension):
-    client.unload_extension(f'cogs.{extension}')
-    client.load_extension(f'cogs.{extension}')
-
-# Error message displayed when user triggers `reload` command without 
-# being granted required permissions
-@reload.error
-async def on_reload_error(ctx, error):
-    embed = discord.Embed(title = "Missing Permissions!",
-    description = "Must have `administrator` permissions to use this command!",
-    color = discord.Color.greyple())
-    await ctx.send(embed = embed)
 
 # Loop that loads cogs when bot is online
 for filename in os.listdir('./src/cogs'):

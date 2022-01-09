@@ -5,7 +5,6 @@ from discord.ext import commands, tasks
 import os
 from itertools import cycle
 import asyncio
-import json
 
 # Cycle which consists of the bot statuses to be cycled through at regular intervals
 status = cycle(['arXiv', 'Kaggle', 'redditAPI'])
@@ -100,6 +99,14 @@ class basic(commands.Cog):
         await ctx.send(embed = embed)
         await asyncio.sleep(2)
         await ctx.channel.purge(limit = 1)
+
+    # Error message displayed in discord channel in case invalid command is entered
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            embed = discord.Embed(title = "Invalid Command!", description = "Command Not Found!",
+            color = discord.Color.dark_red())
+            await ctx.send(embed = embed)
     
     # Error handler for 'setprefix' command
     @setprefix.error
