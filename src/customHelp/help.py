@@ -7,16 +7,16 @@ class CustomHelpCommand(commands.HelpCommand):
     def __init__(self):
         super().__init__()
 
-
     async def send_bot_help(self, mapping):
-        embed = discord.Embed(title="Commands", description="All commands of the bot", 
-        color=discord.Color.dark_green())
+        embed = discord.Embed(title="Commands", description="*All commands of the bot.*", 
+        color=discord.Color.teal())
         for cog in mapping:
             if cog!=None:
                 command_str = ""
                 for i in [command.name for command in mapping[cog]]:
-                    command_str += "`" + str(i) + "`" + "\n"
-                embed.add_field(name=f'{cog.qualified_name}', value=f'{command_str}')
+                    command_str += "`" + str(i) + "`" + ", "
+                command_str = command_str[:-2:]
+                embed.add_field(name=f'{cog.qualified_name}', value=f'{command_str}', inline=False)
             else:
                 pass
             
@@ -49,7 +49,6 @@ class CustomHelpCommand(commands.HelpCommand):
         embed.add_field(name ="Aliases" , value = f'{aliases}' )
         await self.get_destination().send(embed = embed)
     #self.client(help_command=commands.MinimalHelpCommand())
-
 
 
 def setup(client):

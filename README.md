@@ -1,6 +1,6 @@
 # S4DS-Bot
 
-S4DS discord bot which serves for arXiv and Kaggle functionality.
+S4DS discord bot which primarily serves for arXiv and Kaggle functionality.
 
 This is a bot programmed entirely in python3 (Version 3.7+), primarily using discord.py (V 1.x(+) ), also known as the "Rewrite" version of discord.py.
 
@@ -31,7 +31,7 @@ Step 3 :
 
     3.5 : Navigate to the third option "Bot" and under the "Build a Bot" section click the "Add Bot" and finalise your selection. (Note, this is irreversible for that application.)
 
-    3.6 : Now, under the label "TOKEN", click "Copy" to copy the token and save it in the corresponding text file or environment variable `DISCORD-TOKEN`. 
+    3.6 : Now, under the label "TOKEN", click "Copy" to copy the token and save it as the environment variable, `DISCORD-TOKEN`. 
 
     3.7 : Check the following permissions : 
         i. PUBLIC BOT
@@ -52,6 +52,8 @@ Minor Fix 1 : Fixed Permissions for managing cogs
 
 Now the load, unload and reload commands require administrator permissions for a user in order to use them, and flashes error message if they don't have necessary permissions.
 This is implemented by using checks and handling errors.
+
+Update : Load, Unload & Reload commands are now deprecated, in view of their ability to alter / affect bot functionalities across all servers.  
 
 ---------------------------------------------------------------------------------
 
@@ -120,6 +122,13 @@ Now, the bot can have different prefixes in different servers, i.e the server ow
 
 Command : 
 `<prefix>setprefix <new_prefix>` : Sets / changes a new prefix for the guild. Requires `administrator` perms.
+
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Minor Patch 1 : Migrated data management to postgres. 
+
+All sorts of data pertaining to the bot and it's functionalities are now managed using PostgreSQL instead of the previous use of `.json` files.   
 
 ---------------------------------------------------------------------------------
 
