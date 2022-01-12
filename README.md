@@ -1,6 +1,6 @@
 # S4DS-Bot
 
-S4DS discord bot which primarily serves for arXiv and Kaggle functionality.
+S4DS discord bot which primarily serves for arXiv, kaggle and educational memes (using reddit) functionality.
 
 This is a bot programmed entirely in python3 (Version 3.7+), primarily using discord.py (V 1.x(+) ), also known as the "Rewrite" version of discord.py.
 
@@ -13,7 +13,7 @@ Documentation - https://discordpy.readthedocs.io/en/stable/
 
 -----------------------------------------------------------------------------
 
-Setting up the bot : 
+## Setting up the bot : 
 
 Step 1 : Login to discord on desktop.
 
@@ -48,87 +48,34 @@ Step 3 :
 ---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
-Minor Fix 1 : Fixed Permissions for managing cogs
 
-Now the load, unload and reload commands require administrator permissions for a user in order to use them, and flashes error message if they don't have necessary permissions.
-This is implemented by using checks and handling errors.
+## NOTES : 
 
-Update : Load, Unload & Reload commands are now deprecated, in view of their ability to alter / affect bot functionalities across all servers.  
+### Environment Variables / Config Vars : 
 
----------------------------------------------------------------------------------
+The application/bot has the portability of being deployed either locally or to the cloud, ensured through a collection of environment variables, which also deal with other aspects such as database of choice, API tokens, credentials, etc.
 
----------------------------------------------------------------------------------
-Major Patch 1: Added arXiv functionality
+ - `DISCORD_TOKEN` : Unique API Token for authenticating the bot's client with discord API.
 
-arXiv search results powered by arXiv.org
+ - `KAGGLE_USERNAME` : Username of kaggle user whose account has been used to issue API token.
 
-`<prefix> arxivshow <keyword>` - Displays the top result using the searched keyword (including authors, title, summary, link and download link).
+ - `KAGGLE_KEY` : Unique API Token for interacting with kaggle's api.
 
-`<prefix> arxivshowlud <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of last updated date.
+ - `REDDIT_CREDENTIALS` : Credentials for interacting with reddit's api in `json` format.
 
-`<prefix> arxivshowr <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of relevance.
+ - `PREFIXES_TABLE` : Table storing _unique_ prefixes for each server.
 
-`<prefix> arxivshowsd <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, link and download link) and sorts the result on the basis of submitted date. 
+ - `SUBREDDITS_TABLE` : Table storing list of _unique_ subreddits for each server.
 
-`<prefix> arxivshowsumm <keyword>` - Displays top 5 papers using the searched keyword (including authors, title, summary, link and download link).
+ - `AUTOPOST_TABLE` : Table storing `channel_id`s of servers enabling autopost. 
 
----------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------
-Major Patch 2: Added Kaggle functionality
-
-Additional Requirements : Kaggle API Token
-
- - Environment Method : Define environment variables labelled `KAGGLE_USERNAME` and `KAGGLE_KEY` and copy contents from `kaggle.json` in respective fields. 
-
-`<prefix> list` - Displays top 20 competitions from Kaggle Competition List
-
----------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------
-Major Patch 3: Added Educational Meme functionality using redditAPI
-
-Additional Requirements : reddit API Credentials
-
- - Using Environment : Store corresponding values to keys : `client_id`, `client_secret`, `username`, `password` and `user_agent` in json format in an environment variable labelled `REDDIT_CREDENTIALS`. 
-
-Commands : 
-
-`<prefix>memes <subreddit_index> <no.of_memes(limit=5)>` - Displays a certain no. of memes from an index passed an argument from a pre-determined list of subreddits, by default 1 and a maximum of 5 at a time. 
-The `<no._of_memes>` is an optional argument as such. 
-Returns error if 
-: i. No subreddit index is passed as argument. 
-ii. Invalid subreddit index is passed as argument. 
-iii. The no. of requested memes is more than 5 at a time.
-
-`<prefix>autoposton <channel>` -  Posts a meme in the specified channel passed as argument at regular intervals (by default 15 minutes) at coordinated time for all servers.
-
-`<prefix>autopostoff` - Turns off autoposting for the channel where it is enabled in a server.
-
-`<prefix>sublist` - Shows a list of available subreddits in './cogs/subreddit.txt' file (currently in gitignore).
-
-`<prefix>addsub <subreddit_name>` - Adds a subreddit to the list of existing subreddits './cogs/subreddit.txt'.
-
-`<prefix>delsub <index>` - Removes subreddit at index passed as argument.
-
-N.B - Errors have been handled for all commands.
-
----------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------
-Minor Patch 1 : Added custom server prefixes 
-
-Now, the bot can have different prefixes in different servers, i.e the server owners / admins can set a different prefix than the bot's default one.
-
-Command : 
-`<prefix>setprefix <new_prefix>` : Sets / changes a new prefix for the guild. Requires `administrator` perms.
-
----------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------
-Minor Patch 1 : Migrated data management to postgres. 
-
-All sorts of data pertaining to the bot and it's functionalities are now managed using PostgreSQL instead of the previous use of `.json` files.   
+ - `CURRENT_ENVIRONMENT` : Specify `local` if deployed locally, any other string for otherwise. 
+    - If `CURRENT_ENVIRONMENT` set to `local`, set the following environment variables : 
+        - `DATABASE_NAME` : Name of local PostgreSQL Database.
+        - `DATABASE_USER` : Name of the database role used for authentication.
+        - `DATABASE_PASSWORD` : Password to be used for authentication.
+    - If `CURRENT_ENVIRONMENT` is set to something else, set the follwoing environment variable : 
+        -  `DATABASE_URL` : Connection arguments specified using as a single string in the [libpq connection URI format](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) : `postgres://user:password@host:port/database?option=value`. Typically, for cloud platforms like heroku, this is auto-configured and as such, shouldnot be tampered with. 
 
 ---------------------------------------------------------------------------------
 
