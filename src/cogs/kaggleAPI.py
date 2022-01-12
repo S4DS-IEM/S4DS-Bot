@@ -6,7 +6,7 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 api = KaggleApi()
 api.authenticate()
 
-class kaggleapi(commands.Cog):
+class kaggle(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -46,5 +46,5 @@ class kaggleapi(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(kaggleapi(client)) 
+    client.add_cog(kaggle(client)) 
     
