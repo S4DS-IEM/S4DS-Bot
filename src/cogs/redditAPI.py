@@ -129,7 +129,7 @@ class memes(commands.Cog):
         await ctx.send(embed=embed)
 
     # Loop for autoposting every 15 minutes
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=15)
     async def autopost(self):
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
         
