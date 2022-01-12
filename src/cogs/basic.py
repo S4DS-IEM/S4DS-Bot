@@ -1,6 +1,5 @@
 # Imports
 import discord
-from discord.enums import Status 
 from discord.ext import commands, tasks
 import os
 from itertools import cycle
@@ -15,33 +14,21 @@ class basic(commands.Cog):
         self.client = client
         self.pref_table = os.environ['PREFIXES_TABLE'] # Table for prefixes
 
-    # Check if table and column pertaining to prefixes is present
-    async def pref_table_check(self):
-        # If doesn't exist, creates Table containing server prefixes
-        await self.client.pg_con.execute(f"CREATE TABLE IF NOT EXISTS {self.pref_table}(server_id bigint NOT NULL, server_prefix character varying(5) COLLATE pg_catalog.\"default\" NOT NULL, CONSTRAINT prefixes_pkey PRIMARY KEY (server_id))")
-
-        # If columns are deleted, to re-generate (with constraints)
-        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.pref_table} ADD COLUMN IF NOT EXISTS server_id bigint NOT NULL CONSTRAINT prefixes_pkey PRIMARY KEY")
-
-        await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.pref_table} ADD COLUMN IF NOT EXISTS server_prefix character varying(5) COLLATE pg_catalog.\"default\" NOT NULL")
-
     # Event (Cog.listener()) event which prints online status of bot on console 
     # and triggers status/activity cycle of bot
     @commands.Cog.listener()
     async def on_ready(self):
         self.change_status.start()
-        print("Bot is ready") 
+        print("Status : Online") 
 
     # Setting prefix as default on joining a server
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        await self.pref_table_check()
-        await self.client.pg_con.execute(f"INSERT INTO {self.pref_table}(server_id, server_prefix) VALUES($1, $2)", guild.id, '.')
+        await self.client.pg_con.execute(f"INSERT INTO {self.pref_table}(server_id, server_prefix) VALUES($1, $2) ON CONFLICT DO NOTHING", guild.id, '.')
 
     # Deleting prefix on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        await self.pref_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.pref_table} WHERE server_id = $1", guild.id)
 
     # Command to assign custom prefix
@@ -56,7 +43,6 @@ class basic(commands.Cog):
     @commands.command(name ="setprefix", help = setprefix_help)
     @commands.has_permissions(administrator = True)
     async def setprefix(self, ctx, prefix):
-        await self.pref_table_check()
         
         if isinstance(prefix, str) and len(prefix)>0 and len(prefix)<=5:
             await self.client.pg_con.execute(f"UPDATE {self.pref_table} SET server_prefix = $2 WHERE server_id = $1", ctx.guild.id, prefix)

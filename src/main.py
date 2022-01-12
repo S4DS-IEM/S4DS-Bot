@@ -20,17 +20,21 @@ intents.members = True
 intents.messages = True
 
 # Initialise bot instance
-client = commands.Bot(command_prefix = None, intents = intents, help_command=cust_help)
+client = commands.Bot(command_prefix=None, intents=intents, help_command=cust_help)
 
 # Create database connection pool
-db_name = os.environ['DATABASE_NAME']
-db_user = os.environ['DATABASE_USER']
-db_pass = os.environ['DATABASE_PASSWORD']
 
-# prefixes_table = "public.prefixes"
+environment = os.environ['CURRENT_ENVIRONMENT']
 
 async def create_dbpool():
-    client.pg_con = await asyncpg.create_pool(database=db_name, user=db_user, password=db_pass)
+    if environment != "local":
+        db_dsn = os.environ['DATABASE_URL']
+        client.pg_con = await asyncpg.create_pool(dsn=db_dsn)
+    else:
+        db_name = os.environ['DATABASE_NAME']
+        db_user = os.environ['DATABASE_USER']
+        db_pass = os.environ['DATABASE_PASSWORD']
+        client.pg_con = await asyncpg.create_pool(database=db_name, user=db_user, password=db_pass)
 
 # Connect to Postgres
 client.loop.run_until_complete(create_dbpool())

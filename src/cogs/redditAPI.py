@@ -1,20 +1,17 @@
 # Imports
-from os import name
 import os
 import discord
 from discord.ext import commands,tasks
 import random
-import asyncpraw
-import time
-from asyncpraw.reddit import Subreddit
 import json
 from asyncpraw import Reddit
+import asyncprawcore
 
 # List of application-default subreddits
 default_subred = ['DataScienceMemes', 'ProgrammerHumor', 'machinelearningmemes', 'mathmemes', 'linuxmemes', 'codingmemes', 'educationalmemes', 'applememes', 'windowsmemes']
 
 #  Create a class 'meme' which inherits from the 'commands.Cog' class
-class meme(commands.Cog):
+class memes(commands.Cog):
 
     def __init__(self, client):
         self.client = client
@@ -44,36 +41,33 @@ class meme(commands.Cog):
     # 'Cog.listener' event which triggers autoposting in servers where it is enabled
     @commands.Cog.listener()
     async def on_ready(self):
-        await self.ap_table_check()
+        # Perform checks
+        await self.ap_table_check() 
+        await self.subred_table_check()
+
         await self.autopost.start()
 
     # Activating meme services on joining a server
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        await self.subred_table_check()
-        await self.client.pg_con.execute(f"INSERT INTO {self.subred_table_name}(guild_id, subredlist) VALUES($1, $2)", guild.id, default_subred)
+        await self.client.pg_con.execute(f"INSERT INTO {self.subred_table_name}(guild_id, subredlist) VALUES($1, $2) ON CONFLICT DO NOTHING", guild.id, default_subred)
 
     # Deactivating meme services and autoposting on leaving server
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        # subreddits list
-        await self.subred_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.subred_table_name} WHERE guild_id = $1 ", guild.id)
-        # autopost
-        await self.ap_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.ap_table_name} WHERE guild_id = $1", guild.id)
 
     # Command for getting a meme
-    memes_help ='''***Description :*** 
+    meme_help ='''***Description :*** 
                             Command for getting a meme or a desired number of memes(not exceeding 5), based on user's wish\n
                             ***Syntax :***
                             `<prefix>memes <subreddit_index> <no.of_memes(limit=5)>`'''
-    @commands.command(name ="memes", help = memes_help) 
-    async def memes(self, ctx, arg : int, x = 1):
+    @commands.command(name ="meme", help = meme_help) 
+    async def meme(self, ctx, arg : int, x = 1):
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
         
         async with Reddit(**credentials) as reddit:
-            await self.subred_table_check()
 
             subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
@@ -117,8 +111,10 @@ class meme(commands.Cog):
                             `<prefix>autoposton <channel_name>`''' 
     @commands.command(name ="autoposton", help = autoposton_help, aliases = ['apon'])
     async def autoposton(self, ctx, channel : commands.TextChannelConverter):
-        await self.ap_table_check()
         await self.client.pg_con.execute(f"INSERT INTO {self.ap_table_name}(guild_id, channel_id) VALUES($1, $2)", ctx.guild.id, channel.id)
+
+        embed = discord.Embed(title="Autoposting Enabled!", description=f"Now, memes will swarm channel `{channel.name}` every 15 minutes!", color=discord.Color.greyple())
+        await ctx.send(embed=embed)
 
     # Command for ending AutoPost
     autopostoff_help = '''***Description :*** 
@@ -127,14 +123,15 @@ class meme(commands.Cog):
                             `<prefix>autopostoff`'''
     @commands.command(name ="autopostoff", help = autopostoff_help, aliases = ['apoff'])
     async def autopostoff(self, ctx):
-        await self.ap_table_check()
         await self.client.pg_con.execute(f"DELETE FROM {self.ap_table_name} WHERE guild_id = $1", ctx.guild.id)
+
+        embed = discord.Embed(title="Autoposting Disabled!", description=f"Autoposting disabled for the server!", color=discord.Color.greyple())
+        await ctx.send(embed=embed)
 
     # Loop for autoposting every 15 minutes
     @tasks.loop(minutes=1)
     async def autopost(self):
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
-        await self.ap_table_check()
         
         async with Reddit(**credentials) as reddit:
 
@@ -166,8 +163,6 @@ class meme(commands.Cog):
                             `<prefix>sublist` '''
     @commands.command(name ="sublist", help = sublist_help)
     async def sublist(self, ctx):
-        await self.subred_table_check()
-
         subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
         guild_id, sublist = subredlist
@@ -191,31 +186,41 @@ class meme(commands.Cog):
                             `Administrator`'''
     @commands.command(name ="addsub", help = addsub_help)
     @commands.has_permissions(administrator = True)
-    async def addsub(self, ctx, s):
-        await self.subred_table_check()
+    async def addsub(self, ctx, subreddit_name):
+        # Setup API Client
+        credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
+        async with Reddit(**credentials) as reddit:
+        
+            if subreddit_name.startswith(('/r/', 'r/')):
+                subreddit_name = subreddit_name.split('r/')[-1] # -1 gets the last element in the list
+            try:
+                # Check if subreddit is valid
+                subreddit_chk = await reddit.subreddit(subreddit_name, fetch=True) # by default Async PRAW doesn't make network requests when subreddit is called
 
-        # Fetch original list of subreddits for server
-        subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
+                # Fetch original list of subreddits for server
+                subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
-        guild_id, sublist = subredlist
+                guild_id, sublist = subredlist
 
-        # Add new subreddit
-        # Need to check if value passed as subreddit is valid
-        sublist.append(s)
+                sublist.append(subreddit_name)
 
-        await self.client.pg_con.execute(f"UPDATE {self.subred_table_name} SET subredlist = $2 WHERE guild_id = $1", ctx.guild.id, sublist)
+                await self.client.pg_con.execute(f"UPDATE {self.subred_table_name} SET subredlist = $2 WHERE guild_id = $1", ctx.guild.id, sublist)
 
-        templist = []
+                templist = []
 
-        for x in range(1, (len(sublist)+1)):
-            m = str(x) + f'.  r/{sublist[x-1]}' + '\n'
-            templist.append(m)
-        templist[-1] = templist[-1].strip('\n')
-        meme_list = ''.join(templist)
-        embed = discord.Embed(title = "Subreddit Added Successfully", color = discord.Color.blue(), inline = False)
-        embed.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
-        await ctx.send(embed = embed)
+                for x in range(1, (len(sublist)+1)):
+                    m = str(x) + f'.  r/{sublist[x-1]}' + '\n'
+                    templist.append(m)
+                templist[-1] = templist[-1].strip('\n')
+                meme_list = ''.join(templist)
+                embed = discord.Embed(title = "Subreddit Added Successfully", color = discord.Color.blue(), inline = False)
+                embed.add_field(name = "Updated Subreddit List:\n", value = f"{meme_list}" , inline = False)
+                
+            except asyncprawcore.Redirect: 
+                # Reddit will redirect to reddit.com/search if the subreddit doesn't exist
+                embed = discord.Embed(title = f"Invalid Subreddit!", description = f"Subreddit `{subreddit_name}` doesn't exist!", color = discord.Color.magenta())
 
+            await ctx.send(embed=embed)
 
     # Command for deleting a subreddit in the list (admin only command)
     delsub_help = '''***Description :*** 
@@ -227,8 +232,6 @@ class meme(commands.Cog):
     @commands.command(name ="delsub",  help = delsub_help)
     @commands.has_permissions(administrator = True)
     async def delsub(self, ctx, m : int):
-        await self.subred_table_check()
-
         # Fetch original list of subreddits for server
         subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
@@ -260,7 +263,7 @@ class meme(commands.Cog):
             await ctx.send(embed= embed_inc_index)
 
     # Error handling for 'meme' command
-    @memes.error
+    @meme.error
     async def memes_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             embed = discord.Embed(title = "Missing Required Arguement",  description = " Trigger the <memelist> command for getting correct index", color = discord.Color.blue())      
@@ -295,4 +298,4 @@ class meme(commands.Cog):
        
 # Setup Cogs 'meme'
 def setup(client):
-    client.add_cog(meme(client))
+    client.add_cog(memes(client))

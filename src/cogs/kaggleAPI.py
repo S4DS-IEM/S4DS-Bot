@@ -1,6 +1,5 @@
+# Imports
 import discord
-
-from discord import colour
 from discord.ext import commands
 
 from kaggle.api.kaggle_api_extended import KaggleApi
