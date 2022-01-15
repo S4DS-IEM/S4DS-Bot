@@ -50,7 +50,7 @@ class memes(commands.Cog):
         # Perform checks
         await self.ap_table_check() 
         await self.subred_table_check()
-
+        # Start autopost loop
         await self.autopost.start()
 
     # Activating meme services on joining a server

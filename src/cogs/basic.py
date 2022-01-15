@@ -31,6 +31,14 @@ class basic(commands.Cog):
     async def on_guild_remove(self, guild):
         await self.client.pg_con.execute(f"DELETE FROM {self.pref_table} WHERE server_id = $1", guild.id)
 
+    # Returns prefix for server on being mentioned
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if self.client.user.mentioned_in(message):
+            server_id, server_prefix = await self.client.pg_con.fetchrow(f"SELECT * FROM {self.pref_table} WHERE server_id = $1", message.guild.id)
+            embed = discord.Embed(title="Server Prefix", description=f"The prefix for this server is `{server_prefix}` !", color=discord.Color.orange())
+            await message.channel.send(embed=embed)
+
     # Command to assign custom prefix
     setprefix_help = '''***Description :*** 
                             Changes bot prefix to new string passed as argument\n
