@@ -38,6 +38,12 @@ class memes(commands.Cog):
 
         await self.client.pg_con.execute(f"ALTER TABLE IF EXISTS {self.subred_table_name} ADD COLUMN IF NOT EXISTS subredlist character varying[] COLLATE pg_catalog.\"default\" NOT NULL")
 
+    # Check if row pertaining to guild is present, which might not be the case if bot is invited when offline
+    async def subred_row_check(self, ctx):
+        subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
+        if subredlist is None:
+            await self.client.pg_con.execute(f"INSERT INTO {self.subred_table_name}(guild_id, subredlist) VALUES($1, $2) ON CONFLICT DO NOTHING", ctx.guild.id, default_subred)
+
     # 'Cog.listener' event which triggers autoposting in servers where it is enabled
     @commands.Cog.listener()
     async def on_ready(self):
@@ -163,6 +169,8 @@ class memes(commands.Cog):
                             `<prefix>sublist` '''
     @commands.command(name ="sublist", help = sublist_help)
     async def sublist(self, ctx):
+        await self.subred_row_check(ctx)
+
         subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 
         guild_id, sublist = subredlist
@@ -187,6 +195,8 @@ class memes(commands.Cog):
     @commands.command(name ="addsub", help = addsub_help)
     @commands.has_permissions(administrator = True)
     async def addsub(self, ctx, subreddit_name):
+        await self.subred_row_check(ctx)
+
         # Setup API Client
         credentials = json.loads(os.environ['REDDIT_CREDENTIALS'])
         async with Reddit(**credentials) as reddit:
@@ -232,6 +242,8 @@ class memes(commands.Cog):
     @commands.command(name ="delsub",  help = delsub_help)
     @commands.has_permissions(administrator = True)
     async def delsub(self, ctx, m : int):
+        await self.subred_row_check(ctx)
+        
         # Fetch original list of subreddits for server
         subredlist = await self.client.pg_con.fetchrow(f"SELECT * from {self.subred_table_name} WHERE guild_id = $1", ctx.guild.id)
 

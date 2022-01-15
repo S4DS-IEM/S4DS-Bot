@@ -49,9 +49,14 @@ async def get_prefix(client, message):
 
     await client.pg_con.execute(f"ALTER TABLE IF EXISTS {pref_table} ADD COLUMN IF NOT EXISTS server_prefix character varying(5) COLLATE pg_catalog.\"default\" NOT NULL")
 
+    # Check if guild has an assigned prefix, which might not be the case if the bot is invited when offline
+    pref = await client.pg_con.fetchrow(f"SELECT server_prefix FROM {pref_table} WHERE server_id = $1", message.guild.id)
+    if pref is None:
+        await client.pg_con.execute(f"INSERT INTO {pref_table}(server_id, server_prefix) VALUES($1, $2) ON CONFLICT DO NOTHING", message.guild.id, '.')
+
     return await client.pg_con.fetchrow(f"SELECT server_prefix FROM {pref_table} WHERE server_id = $1", message.guild.id)
 
-client.command_prefix = get_prefix
+client.command_prefix = get_prefix 
 
 # Loop that loads cogs when bot is online
 for filename in os.listdir('./src/cogs'):
