@@ -90,7 +90,7 @@ class basic(commands.Cog):
     @commands.has_permissions(manage_messages = True)
     async def clear(self, ctx, amount : int):
         if amount>0 and amount<=50:
-            await ctx.channel.purge(limit = amount)
+            await ctx.channel.purge(limit = amount + 1)
             embed = discord.Embed(title = "Purged Messages!", description = f'{amount} messages have been cleared.',
             color = discord.Color.teal())
         else:
