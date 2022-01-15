@@ -49,9 +49,7 @@ Step 3 :
 
 ---------------------------------------------------------------------------------
 
-## NOTES : 
-
-### Environment Variables / Config Vars : 
+## Environment Variables / Config Vars : 
 
 The application/bot has the portability of being deployed either locally or to the cloud, ensured through a collection of environment variables, which also deal with other aspects such as database of choice, API tokens, credentials, etc.
 
@@ -77,6 +75,9 @@ The application/bot has the portability of being deployed either locally or to t
     - If `CURRENT_ENVIRONMENT` is set to something else, set the follwoing environment variable : 
         -  `DATABASE_URL` : Connection arguments specified using as a single string in the [libpq connection URI format](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING) : `postgres://user:password@host:port/database?option=value`. Typically, for cloud platforms like heroku, this is auto-configured and as such, shouldnot be tampered with. 
 
+### Note : 
+ - Modify credentials / code accordingly case of any change in use of preferred database.
+ - Changes are logged only during uptime.
 ---------------------------------------------------------------------------------
 
 So, following the above steps one can easily deploy the bot on a local machine or as a web application hosted on a cloud platform.
