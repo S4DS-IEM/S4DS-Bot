@@ -75,13 +75,19 @@ class basic(commands.Cog):
     clear_help ='''***Description :*** 
                             Clears a certain amount of messages from the channel\n
                             ***Syntax :***
-                            `<prefix>clear <frequency>`'''
+                            `<prefix>clear <limit>`\n
+                            ***Limit :***
+                            `50`'''
     @commands.command(name ="clear", help = clear_help)
     @commands.has_permissions(manage_messages = True)
     async def clear(self, ctx, amount : int):
-        await ctx.channel.purge(limit = amount)
-        embed = discord.Embed(title = "Purged Messages!", description = f'{amount} messages have been cleared.',
-        color = discord.Color.teal())
+        if amount>0 and amount<=50:
+            await ctx.channel.purge(limit = amount)
+            embed = discord.Embed(title = "Purged Messages!", description = f'{amount} messages have been cleared.',
+            color = discord.Color.teal())
+        else:
+            embed = discord.Embed(title = "Invalid Limits!", description = f'Please enter a valid limit between 1 and 50!',
+            color = discord.Color.magenta())
         await ctx.send(embed = embed)
         await asyncio.sleep(2)
         await ctx.channel.purge(limit = 1)
