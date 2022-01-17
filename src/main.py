@@ -1,7 +1,6 @@
 # Imports
 import discord
 import os
-from discord.enums import DefaultAvatar
 from discord.ext import commands
 from customHelp import help
 from dotenv import load_dotenv

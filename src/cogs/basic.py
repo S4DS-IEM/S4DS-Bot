@@ -54,7 +54,7 @@ class basic(commands.Cog):
         
         if isinstance(prefix, str) and len(prefix)>0 and len(prefix)<=5:
             await self.client.pg_con.execute(f"UPDATE {self.pref_table} SET server_prefix = $2 WHERE server_id = $1", ctx.guild.id, prefix)
-            embed = discord.Embed(title="Prefix changed!", description=f'Prefix changed to `{prefix}` !', color=discord.Color.teal())    
+            embed = discord.Embed(title="Prefix changed!", description=f'Prefix changed to `{prefix}` !', color=discord.Color.orange())    
         else:
             embed = discord.Embed(title="Invalid Prefix!", description=f'Please use a prefix of length between 1 and 5 characters!', color=discord.Color.dark_red())    
              
@@ -90,9 +90,9 @@ class basic(commands.Cog):
     @commands.has_permissions(manage_messages = True)
     async def clear(self, ctx, amount : int):
         if amount>0 and amount<=50:
-            await ctx.channel.purge(limit = amount)
+            await ctx.channel.purge(limit = amount + 1)
             embed = discord.Embed(title = "Purged Messages!", description = f'{amount} messages have been cleared.',
-            color = discord.Color.teal())
+            color = discord.Color.dark_blue())
         else:
             embed = discord.Embed(title = "Invalid Limits!", description = f'Please enter a valid limit between 1 and 50!',
             color = discord.Color.magenta())

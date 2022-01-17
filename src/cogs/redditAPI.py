@@ -90,13 +90,13 @@ class memes(commands.Cog):
                         all_meme.append(submission)
                         
                     for i in range(x):
-                        random_sub = random.choice(all_meme)
-                        name = random_sub.title
-                        url = random_sub.url
-                        author = random_sub.author
-                        pst = "https://www.reddit.com" + random_sub.permalink
+                        random_meme = random.choice(all_meme)
+                        name = str(random_meme.title)[:256:]
+                        url = random_meme.url
+                        author = random_meme.author
+                        pst = "https://www.reddit.com" + random_meme.permalink
                         
-                        embed = discord.Embed(title = name , url = pst, description = f'Created by u/{author}', colour = discord.Color.purple())
+                        embed = discord.Embed(title = name , url = pst, description = f'Created by u/{author}', colour = discord.Color.teal())
                         embed.set_author(name = f'r/{subred}')
                         embed.set_image(url = url)
                         embed.set_footer(text = f'Ordered by {ctx.author}', icon_url = ctx.author.avatar_url)
@@ -148,11 +148,11 @@ class memes(commands.Cog):
             hot = subreddit.hot(limit=500)
             async for submission in hot:
                 all_meme.append(submission)
-            random_sub = random.choice(all_meme)
-            name = random_sub.title
-            url = random_sub.url
-            author = random_sub.author
-            pst = "https://www.reddit.com" + random_sub.permalink
+            random_meme = random.choice(all_meme)
+            name = str(random_meme.title)[:256:]
+            url = random_meme.url
+            author = random_meme.author
+            pst = "https://www.reddit.com" + random_meme.permalink
 
             ap_channel_data = await self.client.pg_con.fetch(f"SELECT * FROM {self.ap_table_name}")
                         
